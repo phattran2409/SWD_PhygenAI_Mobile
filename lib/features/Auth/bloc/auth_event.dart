@@ -13,3 +13,5 @@ class AuthSignupEvent extends AuthEvent {
 
   AuthSignupEvent({required this.email, required this.password});
 }
+
+class AuthGoogleSignInEvent extends AuthEvent {}
