@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:phygen/core/services/token_storage_service.dart';
+import 'package:phygen/core/widgets/CircleNavbar.dart';
 import 'package:phygen/features/Auth/data/remote/auth_remote_data_source.dart';
 import 'package:phygen/features/Auth/data/remote/google_signIn.dart';
 import 'package:phygen/features/Auth/data/repositories/auth_repository_impl.dart';
@@ -26,7 +27,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
- 
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -67,9 +68,12 @@ class MyApp extends StatelessWidget {
           '/login': (context) => const LoginPage(),
           '/signup': (context) => const SignUpPage(), 
         },  
+        debugShowCheckedModeBanner: false,  
+         
       );
         },
       ),
+      
     );
   }
 }
@@ -78,19 +82,12 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
   final String title;
-
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +111,14 @@ class _MyHomePageState extends State<MyHomePage> {
             const SizedBox(height: 20),
           ],
         ),  
+      ),
+      bottomNavigationBar: MyCircleNavbar(
+        selectedIndex: _selectedIndex ?? 0,
+        onItemSelected: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
       ),
     );
   }
