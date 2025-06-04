@@ -24,6 +24,8 @@ class GoogleSignInRemoteDataSourceImpl implements GoogleSignInRemoteDataSource {
     );
     await FirebaseAuth.instance.signInWithCredential(credentials);
     final userCredential = await FirebaseAuth.instance.signInWithCredential(credentials);
+
+    print('User signed in: ${userCredential.user}');
     return UserModel(
       id: userCredential.user?.uid ?? '',
       email: userCredential.user?.email ?? ''

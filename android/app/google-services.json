@@ -12,7 +12,20 @@
           "package_name": "com.example.phygen"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "339576007174-t5ml01clqr4n4etm92alu7sov19dgvsc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.phygen",
+            "certificate_hash": "d1fc4d7738b7951400ecb1c0f5d86cb55617f3ac"
+          }
+        },
+        {
+          "client_id": "339576007174-jqgqbiqifub4ocuj8jkmk1qm9sbmv9nd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAnye-8lopYxG-u5q0RQ3y2xTM4IkUN3mo"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "339576007174-jqgqbiqifub4ocuj8jkmk1qm9sbmv9nd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

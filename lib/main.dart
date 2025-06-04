@@ -8,6 +8,7 @@ import 'package:phygen/features/Auth/data/repositories/auth_repository_impl.dart
 import 'package:phygen/features/Auth/data/repositories/google_singIn_impl.dart';
 import 'package:phygen/features/Auth/domain/usecases/login_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/google_signIn_usecase.dart';
+import 'package:phygen/features/Auth/presentation/pages/signupPage.dart';
 
 import 'features/Auth/bloc/auth_bloc.dart';
 import 'features/Auth/bloc/auth_event.dart';
@@ -64,6 +65,7 @@ class MyApp extends StatelessWidget {
         home: const MyHomePage(title: 'Demo Home page clean architecture'),  
         routes: {
           '/login': (context) => const LoginPage(),
+          '/signup': (context) => const SignUpPage(), 
         },  
       );
         },
