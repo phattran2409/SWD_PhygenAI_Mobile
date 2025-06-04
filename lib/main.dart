@@ -1,20 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:phygen/core/services/token_storage_service.dart';
+import 'package:phygen/features/Auth/data/remote/auth_remote_data_source.dart';
+import 'package:phygen/features/Auth/data/remote/google_signIn.dart';
+import 'package:phygen/features/Auth/data/repositories/auth_repository_impl.dart';
+import 'package:phygen/features/Auth/data/repositories/google_singIn_impl.dart';
 import 'package:phygen/features/Auth/domain/usecases/login_usecase.dart';
+import 'package:phygen/features/Auth/domain/usecases/google_signIn_usecase.dart';
+import 'package:phygen/features/Auth/presentation/pages/signupPage.dart';
 
 import 'features/Auth/bloc/auth_bloc.dart';
 import 'features/Auth/bloc/auth_event.dart';
 import 'features/Auth/bloc/auth_state.dart';
 import 'features/Auth/presentation/pages/loginPages.dart';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+
+void main() async {
+   
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
+ 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -22,7 +34,12 @@ class MyApp extends StatelessWidget {
         BlocProvider<AuthBloc>(
           create: (context) => AuthBloc(
             loginUsecase: LoginUsecase(),
-          ),  
+            googleSignInUsecase: GoogleSignInUsecase(
+              googleSignInRepository: GoogleSignInImpl(
+                googleSignInRemoteDataSource: GoogleSignInRemoteDataSourceImpl(),
+              ),  
+            ),
+          ),
         ),
       ],
       child : ScreenUtilInit(
@@ -48,6 +65,7 @@ class MyApp extends StatelessWidget {
         home: const MyHomePage(title: 'Demo Home page clean architecture'),  
         routes: {
           '/login': (context) => const LoginPage(),
+          '/signup': (context) => const SignUpPage(), 
         },  
       );
         },
@@ -85,11 +103,13 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children : [ 
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/login');
-              },
-              child: const Text('Go to Login Page'),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/login');
+                },
+                child: const Text('Go to Login Page'),
+              ),
             ),
             const SizedBox(height: 20),
           ],
