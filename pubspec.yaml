@@ -42,6 +42,8 @@ dependencies:
   firebase_auth: ^4.19.0
   google_sign_in: ^6.2.1
   circle_nav_bar: ^2.0.0
+  image_picker: ^1.0.0
+  dotted_border: ^2.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
