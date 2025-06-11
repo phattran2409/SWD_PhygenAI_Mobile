@@ -10,8 +10,8 @@ class AuthLoginEvent extends AuthEvent {
 class AuthSignupEvent extends AuthEvent {
   final String email;
   final String password;
-
-  AuthSignupEvent({required this.email, required this.password});
+  final String username; // Optional: Add a username field if needed
+  AuthSignupEvent({required this.email, required this.password, required this.username});
 }
 
 class AuthGoogleSignInEvent extends AuthEvent {}

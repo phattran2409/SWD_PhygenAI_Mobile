@@ -3,16 +3,18 @@ import 'package:phygen/features/Auth/bloc/auth_event.dart';
 import 'package:phygen/features/Auth/bloc/auth_state.dart';
 import 'package:phygen/features/Auth/domain/usecases/google_signIn_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/login_usecase.dart';
+import 'package:phygen/features/Auth/domain/usecases/signup_usecase.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUsecase loginUsecase;
+  final SignUpUseCase signUpUseCase;
   final GoogleSignInUsecase googleSignInUsecase;
-  AuthBloc({required this.loginUsecase, required this.googleSignInUsecase}) : super(AuthInitialState()) {
+  AuthBloc({required this.loginUsecase, required this.signUpUseCase, required this.googleSignInUsecase}) : super(AuthInitialState()) {
     on<AuthLoginEvent>((event, emit) async {
       emit(AuthLoadingState());
       try {
         final user = await loginUsecase(event.email, event.password);
-
+        print('User: $user'); // Debugging line to check user object  
         if (user != null) {
           // Assuming user is of type UserModel
           emit(AuthSuccessState(message: 'Login successful'));
@@ -25,7 +27,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<AuthSignupEvent>((event, emit) async {
-      // Handle signup logic here
+      emit(AuthLoadingState());
+      try {
+        final user = await signUpUseCase(event.email, event.password, event.username);
+        print('User: $user'); // Debugging line to check user object
+         // Assuming user is of type UserModel
+         // If the signupUseCase returns a UserModel, you can access its properties here
+         // For example, if UserModel has an id and email, you can do:
+         // print('User ID: ${user.id}, Email: ${user.email}');
+
+        if (user != null) {
+          emit(AuthSuccessState(message: 'Signup successful'));
+        } else {
+          emit(AuthErrorState(message: 'Signup failed'));
+        }
+      } catch (e) {
+        emit(AuthErrorState(message: e.toString()));
+      }
     });
 
     on<AuthGoogleSignInEvent>((event, emit) async {

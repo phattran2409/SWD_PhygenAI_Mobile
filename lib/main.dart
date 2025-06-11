@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,6 +10,7 @@ import 'package:phygen/features/Auth/data/repositories/auth_repository_impl.dart
 import 'package:phygen/features/Auth/data/repositories/google_singIn_impl.dart';
 import 'package:phygen/features/Auth/domain/usecases/login_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/google_signIn_usecase.dart';
+import 'package:phygen/features/Auth/domain/usecases/signup_usecase.dart';
 import 'package:phygen/features/Auth/presentation/pages/signupPage.dart';
 
 import 'features/Auth/bloc/auth_bloc.dart';
@@ -35,9 +37,25 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<AuthBloc>(
           create: (context) => AuthBloc(
-            loginUsecase: LoginUsecase(),
+            loginUsecase: LoginUsecase(
+              authRepository: AuthRepositoryImpl(
+                remoteDataSource: AuthRemoteDataSourceImpl(
+                  firebaseAuth: FirebaseAuth.instance,
+                ),
+                tokenStorageService: TokenStorageService(),
+              ),
+            ),
+            signUpUseCase: SignUpUseCase(
+              authRepository: AuthRepositoryImpl(
+                remoteDataSource: AuthRemoteDataSourceImpl(
+                  firebaseAuth: FirebaseAuth.instance,
+                ),
+                tokenStorageService: TokenStorageService(),
+              ),
+            ),  
             googleSignInUsecase: GoogleSignInUsecase(
               googleSignInRepository: GoogleSignInImpl(
+                tokenStorageService: TokenStorageService(),
                 googleSignInRemoteDataSource: GoogleSignInRemoteDataSourceImpl(),
               ),  
             ),

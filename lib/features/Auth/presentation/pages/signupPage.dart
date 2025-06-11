@@ -128,7 +128,12 @@ class _SignUpPageState extends State<SignUpPage> {
                                 decoration: InputDecoration(
                                   hintText: 'username',
                                   hintStyle: TextStyle(
-                                    color: const Color.fromARGB(255, 111, 111, 111).withOpacity(0.8),
+                                    color: const Color.fromARGB(
+                                      255,
+                                      111,
+                                      111,
+                                      111,
+                                    ).withOpacity(0.8),
                                     fontSize: 12.sp,
                                   ),
                                   prefixIcon: Icon(
@@ -169,7 +174,12 @@ class _SignUpPageState extends State<SignUpPage> {
                                 decoration: InputDecoration(
                                   hintText: 'someone@gmail.com',
                                   hintStyle: TextStyle(
-                                    color: const Color.fromARGB(255, 111, 111, 111).withOpacity(0.8),
+                                    color: const Color.fromARGB(
+                                      255,
+                                      111,
+                                      111,
+                                      111,
+                                    ).withOpacity(0.8),
                                     fontSize: 12.sp,
                                   ),
                                   prefixIcon: Icon(
@@ -207,7 +217,12 @@ class _SignUpPageState extends State<SignUpPage> {
                                 decoration: InputDecoration(
                                   hintText: 'Your Password',
                                   hintStyle: TextStyle(
-                                    color:const Color.fromARGB(255, 111, 111, 111).withOpacity(0.8),
+                                    color: const Color.fromARGB(
+                                      255,
+                                      111,
+                                      111,
+                                      111,
+                                    ).withOpacity(0.8),
                                     fontSize: 12.sp,
                                   ),
                                   prefixIcon: Icon(
@@ -257,7 +272,12 @@ class _SignUpPageState extends State<SignUpPage> {
                                 decoration: InputDecoration(
                                   hintText: 'Confirm Password',
                                   hintStyle: TextStyle(
-                                    color: const Color.fromARGB(255, 111, 111, 111).withOpacity(0.8),
+                                    color: const Color.fromARGB(
+                                      255,
+                                      111,
+                                      111,
+                                      111,
+                                    ).withOpacity(0.8),
                                     fontSize: 12.sp,
                                   ),
                                   prefixIcon: Icon(
@@ -310,6 +330,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                           AuthSignupEvent(
                                             email: _emailController.text.trim(),
                                             password: _passwordController.text,
+                                            username:
+                                                _usernameController.text.trim(),
                                           ),
                                         );
                                       }
