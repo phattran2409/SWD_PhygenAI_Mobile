@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:phygen/core/constants/api_constants.dart';
 import 'package:phygen/core/services/API_Client.dart';
@@ -7,31 +6,38 @@ import 'package:phygen/features/Auth/data/models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel?> login(String email, String password);
-  Future<UserModel?> signup(String email, String password , String username);
+  Future<bool> signup(String email, String password, String username);
   // Optional: Add a logout method if needed
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final FirebaseAuth firebaseAuth;
+  final ApiClient apiClient; // Initialize the API client
+  // Uncomment the line below if you need to use the API client for other purposes
 
-  AuthRemoteDataSourceImpl({required this.firebaseAuth});
+  AuthRemoteDataSourceImpl({required this.apiClient});
 
   @override
   Future<UserModel?> login(String email, String password) async {
     try {
-      final userCredential = await firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
+      print(
+        'API Client: ${apiClient.client}, Endpoint: ${ApiConstants.loginEndpoint}',
       );
-      print('User logged in: ${userCredential.user}'); // Debugging line
-      // Check if userCredential is not null and has a user
-      final user = userCredential.user;
-      if (user != null) {
-        return UserModel(id: user.uid, email: user.email ?? '');
+      final response = await apiClient.post(
+        ApiConstants.loginEndpoint,
+        body: {'email': email, 'password': password},
+      );
+      print('Response: ${response!.body}');
+      print('Status Code: ${response.statusCode}');
+      // Check if the response is successful
+      if (response == null) {
+        throw Exception('Failed to connect to the server.');
+      }
+      print('JSON DECODED RESPONSE: ${jsonDecode(response.body)}');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return UserModel.fromJson(data);
       }
       return null;
-    } on FirebaseAuthException catch (e) {
-      throw _handleFirebaseAuthException(e);  
     } catch (e) {
       print('Login error: $e');
       return null;
@@ -39,23 +45,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel?> signup(String email, String password , String username) async {  
+  Future<bool> signup(String email, String password, String username) async {
     try {
-      final userCredential = await firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
+      print(
+        'API Client: ${apiClient.client}, Endpoint: ${ApiConstants.signupEndpoint}',
       );
-      final user = userCredential.user;
-      if (user != null) {
-        await user.updateDisplayName(username);
-        return UserModel(id: user.uid, email: user.email ?? '', username: username);
+      final response = await apiClient.post(
+        ApiConstants.signupEndpoint,
+        body: {'email': email, 'password': password, 'userName': username},
+      );
+      print('Response: ${response!.body}');
+      print('Status Code: ${response.statusCode}');
+      // Check if the response is successful
+      if (response == null) {
+        throw Exception('Failed to connect to the server.');
       }
-      return null;
-    } on FirebaseAuthException catch (e) {
-      throw _handleFirebaseAuthException(e);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['isSuccess'] ? true : false;
+      }
+      return false;
     } catch (e) {
       print('Signup error: $e');
-      return null;  
+      return false;
     }
   }
 

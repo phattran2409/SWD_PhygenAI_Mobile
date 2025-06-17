@@ -7,11 +7,15 @@ class UserModel extends User {// Placeholder for username, if needed// Placehold
     required String email,
     String? username,
     String? token,
-  }) : super(
+    int? role,
+    String? identityId, // Optional: Add a username field if needed
+  }) : super( 
           id: id,
           email: email,
           username: username,
           token: token,
+          role: role,
+          identityId: identityId,
         );
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -19,7 +23,9 @@ class UserModel extends User {// Placeholder for username, if needed// Placehold
       id: json['id'],
       email: json['email'],
       username: json['username'],
-      token: json['token'],
+      token: json['accessToken'],
+      role: json['role'],
+      identityId: json['identityId'], 
     );
   }
 
@@ -29,6 +35,8 @@ class UserModel extends User {// Placeholder for username, if needed// Placehold
       'email': email,
       'username': username,
       'token': token,
+      'role': role,
+      'identityId': identityId, 
     };
   }
 }

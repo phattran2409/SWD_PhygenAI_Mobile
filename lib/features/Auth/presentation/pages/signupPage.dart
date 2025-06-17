@@ -21,6 +21,15 @@ class _SignUpPageState extends State<SignUpPage> {
   // Variable to toggle password visibility
   bool _obscurePassword = true;
 
+  // Define color constants - matching Login page
+  static const Color primaryColor = Color(0xFF4A4A4A); // Medium gray
+  static const Color secondaryColor = Color(0xFF6B6B6B); // Light gray
+  static const Color accentColor = Color(0xFF8C8C8C); // Lighter gray
+  static const Color backgroundColor = Color(0xFFF5F5F5); // Off-white background
+  static const Color cardColor = Color(0xFFFFFFFF); // White
+  static const Color textColor = Color(0xFF2C2C2C); // Dark gray for text
+  static const Color inputBackgroundColor = Color(0xFFF0F0F0); // Light gray for inputs
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,9 +62,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFFE8D5FF), // Light purple
-                  Color(0xFFC8A8FF), // Medium purple
-                  Color(0xFF9C64FF), // Darker purple
+                  Color(0xFFF5F5F5), // Light gray
+                  Color(0xFFE8E8E8), // Lighter gray
+                  Color(0xFFDCDCDC), // Even lighter gray
                 ],
               ),
             ),
@@ -73,7 +82,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             onPressed: () => Navigator.pop(context),
                             icon: const Icon(
                               Icons.arrow_back_ios,
-                              color: Colors.white,
+                              color: textColor,
                             ),
                           ),
                         ],
@@ -84,11 +93,11 @@ class _SignUpPageState extends State<SignUpPage> {
                         width: double.infinity,
                         padding: EdgeInsets.all(32.w),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: cardColor,
                           borderRadius: BorderRadius.circular(24.r),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withOpacity(0.05),
                               blurRadius: 20,
                               offset: const Offset(0, 10),
                             ),
@@ -102,7 +111,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               style: TextStyle(
                                 fontSize: 32.sp,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF7B3AE8),
+                                color: textColor,
                                 letterSpacing: 2,
                               ),
                             ),
@@ -111,7 +120,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               'FOR YOUR ACCOUNT',
                               style: TextStyle(
                                 fontSize: 16.sp,
-                                color: const Color(0xFF7B3AE8),
+                                color: textColor.withOpacity(0.7),
                                 letterSpacing: 1.5,
                               ),
                             ),
@@ -120,30 +129,24 @@ class _SignUpPageState extends State<SignUpPage> {
                             // Username field
                             Container(
                               decoration: BoxDecoration(
-                                color: const Color.fromARGB(76, 60, 60, 60),
-                                borderRadius: BorderRadius.circular(10.r),
+                                color: inputBackgroundColor,
+                                borderRadius: BorderRadius.circular(25.r),
+                                border: Border.all(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  width: 1,
+                                ),
                               ),
                               child: TextField(
                                 controller: _usernameController,
                                 decoration: InputDecoration(
                                   hintText: 'username',
                                   hintStyle: TextStyle(
-                                    color: const Color.fromARGB(
-                                      255,
-                                      111,
-                                      111,
-                                      111,
-                                    ).withOpacity(0.8),
-                                    fontSize: 12.sp,
+                                    color: Colors.grey.withOpacity(0.5),
+                                    fontSize: 16.sp,
                                   ),
                                   prefixIcon: Icon(
                                     Icons.person,
-                                    color: const Color.fromARGB(
-                                      255,
-                                      255,
-                                      255,
-                                      255,
-                                    ).withOpacity(0.8),
+                                    color: Colors.grey.withOpacity(0.5),
                                     size: 24.w,
                                   ),
                                   border: OutlineInputBorder(
@@ -156,7 +159,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                 ),
                                 style: const TextStyle(
-                                  color: Color.fromARGB(255, 50, 50, 50),
+                                  color: textColor,
                                   fontSize: 16,
                                 ),
                               ),
@@ -166,25 +169,24 @@ class _SignUpPageState extends State<SignUpPage> {
                             // Email field
                             Container(
                               decoration: BoxDecoration(
-                                color: const Color.fromARGB(76, 60, 60, 60),
-                                borderRadius: BorderRadius.circular(10.r),
+                                color: inputBackgroundColor,
+                                borderRadius: BorderRadius.circular(25.r),
+                                border: Border.all(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  width: 1,
+                                ),
                               ),
                               child: TextField(
                                 controller: _emailController,
                                 decoration: InputDecoration(
                                   hintText: 'someone@gmail.com',
                                   hintStyle: TextStyle(
-                                    color: const Color.fromARGB(
-                                      255,
-                                      111,
-                                      111,
-                                      111,
-                                    ).withOpacity(0.8),
-                                    fontSize: 12.sp,
+                                    color: Colors.grey.withOpacity(0.5),
+                                    fontSize: 16.sp,
                                   ),
                                   prefixIcon: Icon(
                                     Icons.email,
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.grey.withOpacity(0.5),
                                     size: 24.w,
                                   ),
                                   border: OutlineInputBorder(
@@ -197,7 +199,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                 ),
                                 style: const TextStyle(
-                                  color: Color.fromARGB(255, 50, 50, 50),
+                                  color: textColor,
                                   fontSize: 16,
                                 ),
                                 keyboardType: TextInputType.emailAddress,
@@ -208,8 +210,12 @@ class _SignUpPageState extends State<SignUpPage> {
                             // Password field
                             Container(
                               decoration: BoxDecoration(
-                                color: Color.fromARGB(76, 60, 60, 60),
-                                borderRadius: BorderRadius.circular(10.r),
+                                color: inputBackgroundColor,
+                                borderRadius: BorderRadius.circular(25.r),
+                                border: Border.all(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  width: 1,
+                                ),
                               ),
                               child: TextField(
                                 controller: _passwordController,
@@ -217,17 +223,12 @@ class _SignUpPageState extends State<SignUpPage> {
                                 decoration: InputDecoration(
                                   hintText: 'Your Password',
                                   hintStyle: TextStyle(
-                                    color: const Color.fromARGB(
-                                      255,
-                                      111,
-                                      111,
-                                      111,
-                                    ).withOpacity(0.8),
-                                    fontSize: 12.sp,
+                                    color: Colors.grey.withOpacity(0.5),
+                                    fontSize: 16.sp,
                                   ),
                                   prefixIcon: Icon(
                                     Icons.lock,
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.grey.withOpacity(0.5),
                                     size: 24.w,
                                   ),
                                   suffixIcon: IconButton(
@@ -235,7 +236,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                       _obscurePassword
                                           ? Icons.visibility_off
                                           : Icons.visibility,
-                                      color: Colors.white.withOpacity(0.8),
+                                      color: Colors.grey.withOpacity(0.5),
                                       size: 24.w,
                                     ),
                                     onPressed: () {
@@ -254,7 +255,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                 ),
                                 style: const TextStyle(
-                                  color: Color.fromARGB(255, 50, 50, 50),
+                                  color: textColor,
                                   fontSize: 16,
                                 ),
                               ),
@@ -263,8 +264,12 @@ class _SignUpPageState extends State<SignUpPage> {
                             // Confirm Password field
                             Container(
                               decoration: BoxDecoration(
-                                color: Color.fromARGB(76, 60, 60, 60),
-                                borderRadius: BorderRadius.circular(10.r),
+                                color: inputBackgroundColor,
+                                borderRadius: BorderRadius.circular(25.r),
+                                border: Border.all(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  width: 1,
+                                ),
                               ),
                               child: TextField(
                                 controller: _confirmPasswordController,
@@ -272,17 +277,12 @@ class _SignUpPageState extends State<SignUpPage> {
                                 decoration: InputDecoration(
                                   hintText: 'Confirm Password',
                                   hintStyle: TextStyle(
-                                    color: const Color.fromARGB(
-                                      255,
-                                      111,
-                                      111,
-                                      111,
-                                    ).withOpacity(0.8),
-                                    fontSize: 12.sp,
+                                    color: Colors.grey.withOpacity(0.5),
+                                    fontSize: 16.sp,
                                   ),
                                   prefixIcon: Icon(
                                     Icons.lock,
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.grey.withOpacity(0.5),
                                     size: 24.w,
                                   ),
                                   suffixIcon: IconButton(
@@ -290,7 +290,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                       _obscurePassword
                                           ? Icons.visibility_off
                                           : Icons.visibility,
-                                      color: Colors.white.withOpacity(0.8),
+                                      color: Colors.grey.withOpacity(0.5),
                                       size: 24.w,
                                     ),
                                     onPressed: () {
@@ -309,7 +309,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                 ),
                                 style: const TextStyle(
-                                  color: Color.fromARGB(255, 50, 50, 50),
+                                  color: textColor,
                                   fontSize: 16,
                                 ),
                               ),
@@ -318,11 +318,11 @@ class _SignUpPageState extends State<SignUpPage> {
                             // Sign up button
                             state is AuthLoadingState
                                 ? const CircularProgressIndicator(
-                                  color: Color(0xFF7B3AE8),
+                                  color: primaryColor,
                                 )
                                 : SizedBox(
                                   width: double.infinity,
-                                  height: 40.h,
+                                  height: 55.h,
                                   child: ElevatedButton(
                                     onPressed: () {
                                       if (_validateForm()) {
@@ -337,7 +337,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF7B3AE8),
+                                      backgroundColor: primaryColor,
+                                      foregroundColor: Colors.white,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(
                                           25.r,
@@ -379,7 +380,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   child: Text(
                                     'Sign In',
                                     style: TextStyle(
-                                      color: const Color(0xFF7B3AE8),
+                                      color: primaryColor,
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -438,7 +439,10 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
     );
   }
 
@@ -447,6 +451,7 @@ class _SignUpPageState extends State<SignUpPage> {
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 }

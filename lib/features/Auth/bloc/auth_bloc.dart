@@ -29,15 +29,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthSignupEvent>((event, emit) async {
       emit(AuthLoadingState());
       try {
-        final user = await signUpUseCase(event.email, event.password, event.username);
-        print('User: $user'); // Debugging line to check user object
-         // Assuming user is of type UserModel
-         // If the signupUseCase returns a UserModel, you can access its properties here
-         // For example, if UserModel has an id and email, you can do:
-         // print('User ID: ${user.id}, Email: ${user.email}');
+        bool isSuccess = await signUpUseCase(event.email, event.password, event.username);
 
-        if (user != null) {
-          emit(AuthSuccessState(message: 'Signup successful'));
+        if (isSuccess) {
+          emit(AuthSuccessState(message: 'Signup successful')); 
         } else {
           emit(AuthErrorState(message: 'Signup failed'));
         }

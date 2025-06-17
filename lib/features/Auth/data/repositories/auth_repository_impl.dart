@@ -17,13 +17,17 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<User?> login(String email, String password) async {
     final userModel = await remoteDataSource.login(email, password);
+    if (userModel != null) {
+      // Store the token in the TokenStorageService
+      await tokenStorageService.saveToken(userModel.token!);
+    } 
     return userModel;
   }
 
   @override
-  Future<User?> signup(String email, String password , String username) async {
-    final userModel = await remoteDataSource.signup(email, password, username);
-    return userModel;
+  Future<bool> signup(String email, String password, String username) async {
+     bool result = await remoteDataSource.signup(email, password, username);
+     return result;
   }
 }
 

@@ -44,6 +44,7 @@ dependencies:
   circle_nav_bar: ^2.0.0
   image_picker: ^1.0.0
   dotted_border: ^2.0.0
+  get_it: ^7.6.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
