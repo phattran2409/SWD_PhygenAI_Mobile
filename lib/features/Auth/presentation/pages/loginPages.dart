@@ -25,6 +25,27 @@ class _LoginPageState extends State<LoginPage> {
   static const Color cardColor = Color(0xFFFFFFFF); // White
   static const Color textColor = Color(0xFF2C2C2C); // Dark gray for text
   static const Color inputBackgroundColor = Color(0xFFF0F0F0); // Light gray for inputs
+  
+  @override
+  void initState() {
+    super.initState();
+    // Initialize controllers
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+      // This ensures the controllers are initialized after the first frame
+      _checkAuthStatus();
+    });
+  }
+  void _checkAuthStatus() {
+  final authBloc = context.read<AuthBloc>();
+  final currentState = authBloc.state; // ❌ Lúc này có thể chưa restore xong
+  
+  // Nếu HydratedBloc chưa restore state từ storage
+  // currentState vẫn là AuthInitialState
+  if (currentState is AuthLoggedInState) {
+    // ❌ Redirect về login ngay cả khi user đã login
+    Navigator.pushReplacementNamed(context, '/profile');
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +71,8 @@ class _LoginPageState extends State<LoginPage> {
             );
             Navigator.pushReplacementNamed(context, '/home');
           }
+
+        
         },
         builder: (context, state) {
           if (state is AuthLoadingState) {

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:phygen/core/widgets/BackgroundWave.dart';
 import 'package:phygen/core/widgets/CircleNavbar.dart';
+import 'package:phygen/features/Home/homePage.dart';
+import 'package:phygen/features/Profile/presentation/profilePages.dart';
 
 class UploadScreen extends StatefulWidget {
   const UploadScreen({Key? key}) : super(key: key);
@@ -14,7 +17,7 @@ class UploadScreen extends StatefulWidget {
 class _UploadScreenState extends State<UploadScreen> {
   File? _selectedFile;
   final ImagePicker _picker = ImagePicker();
-
+  final List<Widget> _pages = [MyHomePage(), UploadScreen(), ProfilePage()];
   Future<void> _pickFile() async {
     final XFile? pickedFile = await _picker.pickImage(
       source: ImageSource.gallery,
@@ -92,7 +95,6 @@ class _UploadScreenState extends State<UploadScreen> {
             icon: const Icon(Icons.account_circle_rounded, color: Colors.black),
             style: TextButton.styleFrom(
               padding: const EdgeInsets.only(right: 20.0, top: 10),
-
               iconSize: 40,
             ),
             tooltip: 'Login Here',
@@ -201,13 +203,13 @@ class _UploadScreenState extends State<UploadScreen> {
       bottomNavigationBar: MyCircleNavbar(
         selectedIndex: _selectedIndex,
         onItemSelected: (index) {
-          if (index == 0) {
-            Navigator.pushReplacementNamed(context, '/');
-          } else if (index == 2) {
-            // Thay bằng route profile nếu có
-            // Navigator.pushReplacementNamed(context, '/profile');
-          }
-          // index == 1 là upload, không làm gì
+          setState(() {
+            _selectedIndex = index;
+          });
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => _pages[index]),
+          );
         },
       ),
     );

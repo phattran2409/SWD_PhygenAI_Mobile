@@ -7,7 +7,7 @@ import 'package:phygen/features/Auth/data/models/user_model.dart';
 abstract class AuthRemoteDataSource {
   Future<UserModel?> login(String email, String password);
   Future<bool> signup(String email, String password, String username);
-  // Optional: Add a logout method if needed
+  Future<UserModel?> getProfile();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -68,6 +68,26 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } catch (e) {
       print('Signup error: $e');
       return false;
+    }
+  }
+
+  @override
+  Future<UserModel?> getProfile() async {
+    try {
+      final response = await apiClient.get(
+        ApiConstants.profileEndpoint,
+      );
+      if (response == null) {
+        throw Exception('Failed to connect to the server.');
+      }
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return UserModel.fromJson(data);
+      }
+      return null;
+    } catch (e) {
+      print('Get profile error: $e');
+      return null;
     }
   }
 

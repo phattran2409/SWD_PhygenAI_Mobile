@@ -29,6 +29,11 @@ class AuthRepositoryImpl implements AuthRepository {
      bool result = await remoteDataSource.signup(email, password, username);
      return result;
   }
+
+  @override
+  Future<User?> getProfile() async {
+    return await remoteDataSource.getProfile();
+  }
 }
 
 
