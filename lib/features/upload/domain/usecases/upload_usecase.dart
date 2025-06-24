@@ -1,16 +1,14 @@
-
-
 import 'dart:io';
 
-import 'package:phygen/features/upload/domain/entities/FileUpload.dart';
-import 'package:phygen/features/upload/domain/repository/upload_Repository.dart';
+import 'package:phygen/features/upload/domain/entities/file_upload.dart';
+import 'package:phygen/features/upload/domain/repository/upload_repository.dart';
 
 class UploadUsecase {
   final UploadRepository uploadRepository;
 
   UploadUsecase(this.uploadRepository);
 
-  Future<FileUpload> uploadFile(File file) async {
+  Future<UploadResponse> uploadFile(File file) async {
     try {
       return await uploadRepository.uploadFile(file);
     } catch (e) {

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:image_picker/image_picker.dart';
-import 'package:dotted_border/dotted_border.dart';
-import 'package:phygen/core/widgets/BackgroundWave.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:phygen/core/widgets/CircleNavbar.dart';
 import 'package:phygen/features/Home/homePage.dart';
 import 'package:phygen/features/Profile/presentation/profilePages.dart';
+import 'package:phygen/features/upload/bloc/upload_bloc.dart';
+import 'package:phygen/features/upload/bloc/upload_Event.dart';
+import 'package:phygen/features/upload/bloc/upload_State.dart';
+import 'package:phygen/features/upload/presentation/widgets/upload_area.dart';
+import 'package:phygen/features/upload/presentation/widgets/image_preview.dart';
+import 'package:phygen/features/upload/presentation/analysis_result_screen.dart';
 
 class UploadScreen extends StatefulWidget {
   const UploadScreen({Key? key}) : super(key: key);
@@ -16,75 +20,39 @@ class UploadScreen extends StatefulWidget {
 
 class _UploadScreenState extends State<UploadScreen> {
   File? _selectedFile;
-  final ImagePicker _picker = ImagePicker();
+   int _selectedIndex = 1;
   final List<Widget> _pages = [MyHomePage(), UploadScreen(), ProfilePage()];
-  Future<void> _pickFile() async {
-    final XFile? pickedFile = await _picker.pickImage(
-      source: ImageSource.gallery,
-    );
-    if (pickedFile != null) {
-      setState(() {
-        _selectedFile = File(pickedFile.path);
-      });
-    }
+  void _handleFileSelected(File file) {
+    setState(() {
+      _selectedFile = file;
+    });
+    context.read<UploadBloc>().add(FileSelectedEvent(fileName: file));
   }
 
-  Future<void> _openCamera() async {
-    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
-    if (photo != null) {
-      setState(() {
-        _selectedFile = File(photo.path);
-      });
-    }
+  void _handleClear() {
+    setState(() {
+      _selectedFile = null;
+    });
+    context.read<UploadBloc>().add(RemoveFileEvent());
   }
 
-  Widget _buildPreview() {
-    // For testing purposes
-    if (_selectedFile == null) {
-      return const SizedBox.shrink();
-    }
-    return Column(
-      children: [
-        const SizedBox(height: 16),
-        const Text('Preview:', style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        Image.file(_selectedFile!, height: 160),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _selectedFile = null;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[300],
-                foregroundColor: Colors.black87,
+  void _handleAnalyze() {
+    if (_selectedFile != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder:
+              (context) => BlocProvider.value(
+                value: BlocProvider.of<UploadBloc>(context),
+                child: AnalysisResultScreen(selectedFile: _selectedFile!),
               ),
-              child: const Text('Clear File'),
-            ),
-            const SizedBox(width: 16),
-            ElevatedButton(
-              onPressed: () {
-                // TODO: Implement analyze functionality
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Analyze This File'),
-            ),
-          ],
         ),
-      ],
-    );
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    int _selectedIndex = 1;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -101,116 +69,40 @@ class _UploadScreenState extends State<UploadScreen> {
             onPressed: () {
               Navigator.pushNamed(context, '/login');
             },
-            // onPressed: () {
-            //   Navigator.pushNamed();
-            // },
-            // widget: const Text('Login', style: TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontWeight: FontWeight.bold, fontSize: 20)),
           ),
         ],
       ),
-
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(45.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: const Text(
-                  'UPLOAD YOUR FILE',
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700),
-                  textAlign: TextAlign.left,
+              UploadArea(onFileSelected: _handleFileSelected),
+              if (_selectedFile != null)
+                ImagePreview(
+                  file: _selectedFile!,
+                  onClear: _handleClear,
+                  onAnalyze: _handleAnalyze,
                 ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: const Text(
-                  'Please upload your file to continue to analyzing.',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  textAlign: TextAlign.left,
-                ),
-              ),
-              const SizedBox(height: 24),
-              DottedBorder(
-                color: Colors.grey,
-                strokeWidth: 2,
-                dashPattern: [6, 4],
-                borderType: BorderType.RRect,
-                radius: const Radius.circular(12),
-                child: Container(
-                  width: 350,
-                  padding: const EdgeInsets.all(24),
-                  color: const Color.fromARGB(255, 255, 255, 255),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.cloud_upload,
-                        size: 48,
-                        color: Colors.grey.shade400,
-                      ),
-                      const SizedBox(height: 12),
-                      GestureDetector(
-                        onTap: _pickFile,
-                        child: Text(
-                          'Tap to upload photo',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'PNG, JPG or PDF (max. 800x400px)',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: const [
-                          Expanded(child: Divider()),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Text(
-                              'OR',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ),
-                          Expanded(child: Divider()),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _openCamera,
-                          child: const Text('Open camera'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              _buildPreview(),
             ],
           ),
         ),
       ),
       bottomNavigationBar: MyCircleNavbar(
         selectedIndex: _selectedIndex,
-        onItemSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => _pages[index]),
-          );
-        },
+        onItemSelected:  
+          (index) {
+            setState(() {
+              // Navigate to the selected page
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => _pages[index],
+                ),
+              );
+            });
+          },
       ),
     );
   }

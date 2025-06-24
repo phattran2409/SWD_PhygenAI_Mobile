@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:phygen/features/upload/data/models/file_upload_model.dart';
+import 'package:phygen/features/upload/domain/entities/file_upload.dart';
 
 abstract class UploadState {
   const UploadState();
@@ -8,27 +10,27 @@ class UploadInitialState extends UploadState {}
 
 class UploadLoadingState extends UploadState {}  
 
-class UploadSuccessInfoState extends UploadState {
+class UploadSuccessState extends UploadState {
+  final UploadResponse fileUpload;
   final String message;
 
-  UploadSuccessInfoState({required this.message});  
+  UploadSuccessState({required this.fileUpload, required this.message});  
 } 
 
-class UploadErrorInfoState extends UploadState {
+class UploadErrorState extends UploadState {
   final String message;
 
-  UploadErrorInfoState({required this.message});
+  UploadErrorState({required this.message});
 } 
 
-class UploadInProgressInfoState extends UploadState {
+class UploadInProgressState extends UploadState {
   final double progress;
 
-  UploadInProgressInfoState({required this.progress});
+  UploadInProgressState({required this.progress});
 } 
 
-class SelectFileState extends UploadState {
-  final File fileName;
+class FileSelectedState extends UploadState {
+  final File file;
 
-  SelectFileState({required this.fileName});
+  FileSelectedState({required this.file});
 } 
-

@@ -496,7 +496,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     ),
-                    SizedBox(height: 40.h),
+                    SizedBox(height: 40.h)
                   ],
                 ),
               ),
@@ -504,6 +504,16 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
       ),
+      bottomNavigationBar: _buildBottomNav(currentIndex: _selectedIndex, onTap:  (index) {
+        setState(() {
+          _selectedIndex = index;
+        });
+        // Navigate to the selected page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => _pages[index]),
+        );
+      }),
     );
   }
 

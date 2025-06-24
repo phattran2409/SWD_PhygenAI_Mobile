@@ -30,10 +30,6 @@ class AuthRepositoryImpl implements AuthRepository {
      return result;
   }
 
-  @override
-  Future<User?> getProfile() async {
-    return await remoteDataSource.getProfile();
-  }
 }
 
 

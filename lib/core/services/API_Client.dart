@@ -1,6 +1,8 @@
 import 'package:http/http.dart' as http;
 import 'package:phygen/core/services/token_storage_service.dart';
 import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 class ApiClient {
  final http.Client client;
@@ -55,5 +57,44 @@ class ApiClient {
       },
       body: body != null ? json.encode(body) : null,
     );
+  }
+
+  Future<http.StreamedResponse> sendMultipartRequest(http.MultipartRequest request) async {
+    try {
+      // final token = await tokenStorageService.getToken();
+      
+      // // Add headers
+      // request.headers.addAll({
+      //   'accept': '*/*',
+      //   if (token != null) 'Authorization': 'Bearer $token',
+      // });
+
+      // Send request with timeout
+      final response = await request.send().timeout(
+        const Duration(seconds: 60),
+        onTimeout: () {
+          throw Exception('Request timeout');
+        },
+      );
+
+      // Check response status
+      if (response.statusCode == 200) {
+        return response;
+      } else {
+        throw Exception('Request failed with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error in sendMultipartRequest: $e');
+      throw Exception('Failed to send request: $e');
+    }
+  }
+}
+
+// Class để override certificate validation
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
   }
 }

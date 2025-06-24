@@ -24,9 +24,8 @@ class _MyHomePageState extends State<MyHomePage> {
         const Color.fromARGB(255, 206, 210, 230),
         const Color.fromARGB(255, 162, 158, 167),
       ],
-      child: Material(
-        color: Colors.transparent,
-        child: SafeArea(
+      child: Scaffold(
+        body: SafeArea(
           child: Column(
             children: [
               // ✅ Custom AppBar
@@ -38,7 +37,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               
               // ✅ Bottom Navigation
-              _buildBottomNav(),
             ],
           ),
         ),

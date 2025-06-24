@@ -1,14 +1,13 @@
-
 import 'dart:io';
 
-import 'package:phygen/features/upload/domain/entities/FileUpload.dart';
+import 'package:phygen/features/upload/domain/entities/file_upload.dart';
 
 abstract class UploadRepository {
   /// Selects a file for upload.
   Future<File> selectFile();
 
   /// Uploads the selected file.
-  Future<FileUpload> uploadFile(File file);
+  Future<UploadResponse> uploadFile(File file);
 
   /// Removes the selected file.
   Future<void> removeFile();
