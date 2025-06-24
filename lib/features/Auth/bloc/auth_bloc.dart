@@ -3,6 +3,7 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:phygen/features/Auth/bloc/auth_event.dart';
 import 'package:phygen/features/Auth/bloc/auth_state.dart';
 import 'package:phygen/features/Auth/domain/usecases/login_usecase.dart';
+import 'package:phygen/features/Auth/domain/usecases/logout_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/signup_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/google_signIn_usecase.dart';
 import 'package:phygen/features/Auth/domain/entities/user.dart';
@@ -11,17 +12,19 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
   final LoginUsecase loginUsecase;
   final SignUpUseCase signUpUseCase;
   final GoogleSignInUsecase googleSignInUsecase;
-
+  final LogoutUsecase logoutUsecase; 
   AuthBloc({
     required this.loginUsecase,
     required this.signUpUseCase,
     required this.googleSignInUsecase,
+    required this.logoutUsecase,  
   }) : super(AuthInitialState()) {
     on<AuthLoginEvent>(_onAuthLoginEvent);
     on<AuthSignupEvent>(_onAuthSignupEvent);
     on<AuthGoogleSignInEvent>(_onAuthGoogleSignInEvent);
     on<AuthLogoutEvent>(_onAuthLogoutEvent);
     on<AuthCheckStatusEvent>(_onAuthCheckStatusEvent);
+   
   }
 
   // ✅ Login event handler
@@ -90,16 +93,22 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthLogoutEvent event,
     Emitter<AuthState> emit,
   ) async {
-    try {
-      // Clear token storage
-      // await tokenStorageService.clearToken();
+  try {
+      emit(AuthLoadingState());
       
-      // Emit initial state - HydratedBloc sẽ xóa data đã lưu
-      emit(AuthInitialState());
+      // Chỉ cần xóa token
+      await logoutUsecase();  
+      
+      // Clear HydratedBloc storage
+      await clear();
+      
+      emit(AuthLoggedOutState());
+      
     } catch (e) {
       emit(AuthErrorState(message: 'Logout failed'));
     }
-  }
+    }
+  
 
   // Check auth status khi app khởi động
   Future<void> _onAuthCheckStatusEvent(

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:phygen/core/services/API_Client.dart';
 import 'package:phygen/core/services/token_storage_service.dart';
 import 'package:phygen/features/Auth/data/models/user_model.dart';
 
@@ -26,7 +27,9 @@ class GoogleSignInRemoteDataSourceImpl implements GoogleSignInRemoteDataSource {
     final userCredential = await FirebaseAuth.instance.signInWithCredential(
       credentials,
     );
+    print('User signed in with Google: ${userCredential.user}'); 
     final user = userCredential.user;
+    
     if (user != null) {
       final idToken = await user.getIdToken();
       // Optionally, you can save the token using TokenStorageService if needed
@@ -40,3 +43,4 @@ class GoogleSignInRemoteDataSourceImpl implements GoogleSignInRemoteDataSource {
     return null; // User sign-in failed
   }
 }
+ 

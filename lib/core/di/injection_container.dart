@@ -10,6 +10,7 @@ import 'package:phygen/features/Auth/data/repositories/google_singIn_impl.dart';
 import 'package:phygen/features/Auth/domain/repository/auth_repository.dart';
 import 'package:phygen/features/Auth/domain/usecases/google_signIn_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/login_usecase.dart';
+import 'package:phygen/features/Auth/domain/usecases/logout_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/signup_usecase.dart';
 import 'package:http/http.dart' as http;
 
@@ -22,6 +23,7 @@ Future<void> init() async {
       loginUsecase: sl(),
       signUpUseCase: sl(),
       googleSignInUsecase: sl(),  
+      logoutUsecase: sl()
     )
   );
   // Use cases
@@ -31,7 +33,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GoogleSignInUsecase(
     googleSignInRepository: sl(),
     ));
-
+  sl.registerLazySingleton(() => LogoutUsecase(
+    tokenStorageService: sl(),
+  ));  
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(
@@ -41,6 +45,7 @@ Future<void> init() async {
   sl.registerLazySingleton<GoogleSignInRepository>(() => GoogleSignInImpl(
     googleSignInRemoteDataSource: sl(),
     tokenStorageService: sl(),
+    apiClient: sl(),
   )); 
   
 

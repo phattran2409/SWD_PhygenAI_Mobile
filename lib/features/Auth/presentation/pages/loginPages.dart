@@ -103,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                       Row(
                         children: [
                           IconButton(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
                             icon: const Icon(
                               Icons.arrow_back_ios,
                               color: textColor,

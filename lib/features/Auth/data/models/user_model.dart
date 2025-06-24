@@ -1,6 +1,6 @@
 import '../../domain/entities/user.dart';
 
-
+// DTO
 class UserModel extends User {// Placeholder for username, if needed// Placeholder for profile picture, if needed
   UserModel({
     required String id,
