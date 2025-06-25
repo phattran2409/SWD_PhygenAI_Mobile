@@ -44,8 +44,8 @@ class AuthProfileLoadedState extends AuthState {
 
 class AuthLoggedInState extends AuthState {
   final User user;
-
-  const AuthLoggedInState({required this.user});
+  final String? message;
+  const AuthLoggedInState({required this.user , this.message});
 
   @override
   List<Object?> get props => [user];

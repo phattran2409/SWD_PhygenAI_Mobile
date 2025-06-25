@@ -25,6 +25,7 @@ class _MyHomePageState extends State<MyHomePage> {
         const Color.fromARGB(255, 162, 158, 167),
       ],
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         body: SafeArea(
           child: Column(
             children: [
@@ -40,6 +41,18 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ),
+        bottomNavigationBar: _buildBottomNav(
+          selectedIndex: _selectedIndex,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => _pages[index]),
+            );
+          },
+        )
       ),
     );
   }
@@ -268,7 +281,9 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildBottomNav() {
+Widget _buildBottomNav({
+    required int selectedIndex,
+    required Function(int) onTap}) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),

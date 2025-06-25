@@ -37,8 +37,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
       final user = await loginUsecase(event.email, event.password);
 
       if (user != null) {
-        emit(AuthLoggedInState(user: user));
-        emit(AuthSuccessState(message: 'Login successful'));
+        emit(AuthLoggedInState(user: user , message: 'Login successful')); 
       } else {
         emit(AuthErrorState(message: 'Login failed'));
       }
@@ -79,8 +78,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
       final user = await googleSignInUsecase();
 
       if (user != null) {
-        emit(AuthLoggedInState(user: user));
-        emit(AuthSuccessState(message: 'Google login successful'));
+        emit(AuthLoggedInState(user: user , message: 'Google login successful'));
       } else {
         emit(AuthErrorState(message: 'Google login failed'));
       }

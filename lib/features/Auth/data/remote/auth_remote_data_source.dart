@@ -34,8 +34,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
       print('JSON DECODED RESPONSE: ${jsonDecode(response.body)}');
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return UserModel.fromJson(data);
+        final jsonRes = jsonDecode(response.body);
+        if (jsonRes['isSuccess']) {
+          final userModel = UserModel.fromJson(jsonRes['data']);
+          return userModel;
+        } else {
+          throw Exception('Login failed: ${jsonRes['message']}');
+        } 
       }
       return null;
     } catch (e) {

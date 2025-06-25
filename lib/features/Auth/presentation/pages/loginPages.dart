@@ -60,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             );
           }
-          if (state is AuthSuccessState) {
+          if (state is AuthLoggedInState) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 

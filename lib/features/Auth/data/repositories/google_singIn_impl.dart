@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:phygen/core/constants/api_constants.dart';
 import 'package:phygen/core/services/API_Client.dart';
 import 'package:phygen/core/services/token_storage_service.dart';
 import 'package:phygen/features/Auth/data/models/user_model.dart';
@@ -19,26 +20,23 @@ class GoogleSignInImpl implements GoogleSignInRepository {
   @override
   Future<UserModel?> signInWithGoogle() async {
     final user = await googleSignInRemoteDataSource.signInWithGoogle();
-    var userData = {
-      'id': user?.id,
-      'email': user?.email,
-      'username': user?.username,
-    };
+
     if (user != null && user.token != null) {
-      var dataToken = await sendataUserToServer(userData);
+      var dataToken = await sendataUserToServer(user.id);
       if (dataToken.isNotEmpty) {
+        print('User data sent to server successfully: $dataToken');
         await tokenStorageService.saveToken(dataToken);
+        return user;
       }
-      print('Token saved: ${user.token}');
     }
-    return user;
+    return null;
   }
 
-  Future<String> sendataUserToServer(Map<String, dynamic> userData) async {
+  Future<String> sendataUserToServer(String uid) async {
     try {
       final response = await apiClient.post(
-        '/users',
-        body: userData,
+        ApiConstants.signIngoogle,
+        queryParameters: {'uid': uid},  
       );
        var data = response!.body;
        
