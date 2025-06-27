@@ -32,7 +32,7 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
     on<RemoveFileEvent>((event, emit) {
       emit(UploadInitialState());
     });
-
+      
     on<ResetUploadEvent>((event, emit) {
       emit(UploadInitialState());
     });

@@ -12,50 +12,69 @@ import 'package:phygen/features/Auth/domain/usecases/google_signIn_usecase.dart'
 import 'package:phygen/features/Auth/domain/usecases/login_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/logout_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/signup_usecase.dart';
+import 'package:phygen/features/upload/bloc/upload_bloc.dart';
+import 'package:phygen/features/upload/data/remote/upload_remote_data_source.dart';
+import 'package:phygen/features/upload/domain/usecases/upload_usecase.dart';
+import 'package:phygen/features/upload/domain/repository/upload_repository.dart';
+import 'package:phygen/features/upload/data/repositories/upload_repository_impl.dart';
 import 'package:http/http.dart' as http;
 
 final GetIt sl = GetIt.instance;
 
 Future<void> init() async {
-  // bloc Auth 
+  // bloc Auth
   sl.registerFactory(
     () => AuthBloc(
       loginUsecase: sl(),
       signUpUseCase: sl(),
-      googleSignInUsecase: sl(),  
-      logoutUsecase: sl()
-    )
+      googleSignInUsecase: sl(),
+      logoutUsecase: sl(),
+    ),
   );
+
+  // bloc Upload
+  sl.registerFactory(() => UploadBloc(uploadUsecase: sl()));
+
   // Use cases
   //// Auth
   sl.registerLazySingleton(() => LoginUsecase(authRepository: sl()));
   sl.registerLazySingleton(() => SignUpUseCase(authRepository: sl()));
-  sl.registerLazySingleton(() => GoogleSignInUsecase(
-    googleSignInRepository: sl(),
-    ));
-  sl.registerLazySingleton(() => LogoutUsecase(
-    tokenStorageService: sl(),
-  ));  
+  sl.registerLazySingleton(
+    () => GoogleSignInUsecase(googleSignInRepository: sl()),
+  );
+  sl.registerLazySingleton(() => LogoutUsecase(tokenStorageService: sl()));
+
+  //// Upload
+  sl.registerLazySingleton(() => UploadUsecase(sl()));
 
   // Repository
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(
-    remoteDataSource: sl(),
-    tokenStorageService: sl(),
-  ));
-  sl.registerLazySingleton<GoogleSignInRepository>(() => GoogleSignInImpl(
-    googleSignInRemoteDataSource: sl(),
-    tokenStorageService: sl(),
-    apiClient: sl(),
-  )); 
-  
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(remoteDataSource: sl(), tokenStorageService: sl()),
+  );
+  sl.registerLazySingleton<GoogleSignInRepository>(
+    () => GoogleSignInImpl(
+      googleSignInRemoteDataSource: sl(),
+      tokenStorageService: sl(),
+      apiClient: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<UploadRepository>(
+    () => UploadRepositoryImpl(remoteDataSource: sl()),
+  );
 
   // Data sources
-  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(
-    apiClient: sl(),
-  ));
-  sl.registerLazySingleton<GoogleSignInRemoteDataSource>(() => GoogleSignInRemoteDataSourceImpl(
-  ));
-  
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<GoogleSignInRemoteDataSource>(
+    () => GoogleSignInRemoteDataSourceImpl(),
+  );
+
+  sl.registerLazySingleton<UploadRemoteDataSource>(
+    () => UploadRemoteDataSourceImpl(apiClient: sl()),
+  );
+
   //core services
   sl.registerLazySingleton(() => TokenStorageService());
   sl.registerLazySingleton(() => ApiClient(client: sl()));
@@ -63,4 +82,4 @@ Future<void> init() async {
 
   sl.registerLazySingleton(() => http.Client());
   sl.registerLazySingleton(() => FirebaseAuth.instance);
-} 
+}
