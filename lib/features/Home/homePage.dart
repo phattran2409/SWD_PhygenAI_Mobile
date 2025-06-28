@@ -5,8 +5,10 @@ import 'package:phygen/core/widgets/BackgroundWave.dart';
 import 'package:phygen/core/widgets/CircleNavbar.dart';
 import 'package:phygen/features/Auth/bloc/auth_bloc.dart';
 import 'package:phygen/features/Auth/bloc/auth_state.dart';
+import 'package:phygen/features/Exam/presentation/screens/history_analyzed/history_analyzed_screen.dart';
+import 'package:phygen/features/Exam/presentation/screens/saved_exam/saved_exams_screen.dart';
 import 'package:phygen/features/Profile/presentation/profilePages.dart';
-import 'package:phygen/features/upload/presentation/upload_screen.dart';
+import 'package:phygen/features/Exam/presentation/screens/upload/upload_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -153,16 +155,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Here are your sites',
+                    'Here you can create, manage and analyze your exams with ease.',
                     style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   const SizedBox(height: 24),
                   
                   // ✅ Action cards
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildActionCard(
+                
+                        _buildActionCard(
                           icon: Icons.auto_awesome,
                           iconColor: Colors.green,
                           backgroundColor: const Color(0xFFE6F7EC),
@@ -170,19 +170,19 @@ class _MyHomePageState extends State<MyHomePage> {
                           subtitle: 'Add Your File Here',
                           onTap: () => Navigator.pushNamed(context, '/upload'),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildActionCard(
-                          icon: Icons.grid_view,
-                          iconColor: Colors.grey,
-                          backgroundColor: const Color(0xFFF6F7F9),
-                          title: 'Content',
-                          subtitle: 'Manage Your Content',
-                          onTap: () {},
-                        ),
-                      ),
-                    ],
+                    
+                   
+                  
+                  const SizedBox(height: 16),
+                  
+                  // ✅ Demo button
+                  _buildActionCard(
+                    icon: Icons.phone_android,
+                    iconColor: Colors.indigo,
+                    backgroundColor: const Color(0xFFE8EAF6),
+                    title: 'Demo Screens',
+                    subtitle: 'View All Exam Screens',
+                    onTap: () => Navigator.pushNamed(context, '/demo-screens'),
                   ),
                   
                   const SizedBox(height: 32),
@@ -194,37 +194,43 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   const SizedBox(height: 16),
                   
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.08),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildActionCard(
+                          icon: Icons.folder,
+                          iconColor: Colors.purple,
+                          backgroundColor: Colors.purple.withOpacity(0.05),
+                          title: 'Saved Exam',
+                          subtitle: 'View Your Saved Exam',
+                          onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => const SavedExamsScreen(),
+                                ),
+                              ),
                         ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        _buildSiteTile(
-                          context,
-                          icon: Icons.verified,
-                          iconBg: const Color(0xFFFFF7D6),
-                          title: 'Fintech Website',
-                          subtitle: 'Free • Unpublished',
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildActionCard(
+                          icon: Icons.history,
+                          iconColor: Colors.orange,
+                          backgroundColor: Colors.orange.withOpacity(0.05),
+                          title: 'History Analysis',
+                          subtitle: 'View Your History',
+                          onTap:  () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) =>
+                                          const HistoryAnalyzedScreen(),
+                                ),
+                              ),
                         ),
-                        const Divider(height: 1),
-                        _buildSiteTile(
-                          context,
-                          icon: Icons.verified,
-                          iconBg: const Color(0xFFFFE6E6),
-                          title: 'E-commerce Website',
-                          subtitle: 'Free • Unpublished',
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -249,6 +255,7 @@ class _MyHomePageState extends State<MyHomePage> {
       onTap: onTap,
       child: Container(
         height: 110,
+        width: double.infinity,
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(16),

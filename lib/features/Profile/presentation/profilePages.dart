@@ -9,7 +9,7 @@ import 'package:phygen/features/Auth/bloc/auth_event.dart';
 import 'package:phygen/features/Auth/bloc/auth_state.dart';
 import 'package:phygen/features/Auth/domain/entities/user.dart';
 import 'package:phygen/features/Home/homePage.dart';
-import 'package:phygen/features/upload/presentation/upload_screen.dart';
+import 'package:phygen/features/Exam/presentation/screens/upload/upload_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   @override

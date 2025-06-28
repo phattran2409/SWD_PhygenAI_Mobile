@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:phygen/core/widgets/CircleNavbar.dart';
-import 'package:phygen/features/upload/bloc/upload_bloc.dart';
-import 'package:phygen/features/upload/bloc/upload_Event.dart';
-import 'package:phygen/features/upload/bloc/upload_State.dart';
-import 'package:phygen/features/upload/presentation/widgets/image_preview.dart';
-import 'package:phygen/features/upload/domain/entities/question.dart';
+import 'package:phygen/features/Exam/bloc/upload_bloc.dart';
+import 'package:phygen/features/Exam/bloc/upload_Event.dart';
+import 'package:phygen/features/Exam/bloc/upload_State.dart';
+import 'package:phygen/features/Exam/presentation/widgets/image_preview.dart';
+import 'package:phygen/features/Exam/domain/entities/question.dart';
 
 class AnalysisResultScreen extends StatefulWidget {
   final File selectedFile;

@@ -12,11 +12,11 @@ import 'package:phygen/features/Auth/domain/usecases/google_signIn_usecase.dart'
 import 'package:phygen/features/Auth/domain/usecases/login_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/logout_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/signup_usecase.dart';
-import 'package:phygen/features/upload/bloc/upload_bloc.dart';
-import 'package:phygen/features/upload/data/remote/upload_remote_data_source.dart';
-import 'package:phygen/features/upload/domain/usecases/upload_usecase.dart';
-import 'package:phygen/features/upload/domain/repository/upload_repository.dart';
-import 'package:phygen/features/upload/data/repositories/upload_repository_impl.dart';
+import 'package:phygen/features/Exam/bloc/upload_bloc.dart';
+import 'package:phygen/features/Exam/data/remote/upload_remote_data_source.dart';
+import 'package:phygen/features/Exam/domain/usecases/upload_usecase.dart';
+import 'package:phygen/features/Exam/domain/repository/upload_repository.dart';
+import 'package:phygen/features/Exam/data/repositories/upload_repository_impl.dart';
 import 'package:http/http.dart' as http;
 
 final GetIt sl = GetIt.instance;

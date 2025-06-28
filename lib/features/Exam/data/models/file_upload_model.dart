@@ -1,6 +1,6 @@
-import 'package:phygen/features/upload/domain/entities/file_upload.dart';
-import 'package:phygen/features/upload/domain/entities/question.dart';
-import 'package:phygen/features/upload/data/models/question_model.dart';
+import 'package:phygen/features/Exam/domain/entities/file_upload.dart';
+import 'package:phygen/features/Exam/domain/entities/question.dart';
+import 'package:phygen/features/Exam/data/models/question_model.dart';
 class UploadResponseModel extends UploadResponse {
   UploadResponseModel({
     required bool isSuccess,

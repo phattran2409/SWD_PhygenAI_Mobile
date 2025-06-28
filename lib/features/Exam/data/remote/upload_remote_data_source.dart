@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:phygen/core/services/API_Client.dart';
 import 'package:phygen/core/constants/api_constants.dart';
-import 'package:phygen/features/upload/data/models/file_upload_model.dart';
+import 'package:phygen/features/Exam/data/models/file_upload_model.dart';
 
 abstract class UploadRemoteDataSource {
     Future<UploadResponseModel> uploadFile(File file);

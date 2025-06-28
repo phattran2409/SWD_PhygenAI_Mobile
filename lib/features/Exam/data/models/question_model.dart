@@ -1,6 +1,4 @@
-
-
-import 'package:phygen/features/upload/domain/entities/question.dart';
+import 'package:phygen/features/Exam/domain/entities/question.dart';
 
 class QuestionModel extends Question {
   QuestionModel({

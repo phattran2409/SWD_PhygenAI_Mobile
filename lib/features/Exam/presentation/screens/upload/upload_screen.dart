@@ -4,12 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:phygen/core/widgets/CircleNavbar.dart';
 import 'package:phygen/features/Home/homePage.dart';
 import 'package:phygen/features/Profile/presentation/profilePages.dart';
-import 'package:phygen/features/upload/bloc/upload_bloc.dart';
-import 'package:phygen/features/upload/bloc/upload_Event.dart';
-import 'package:phygen/features/upload/bloc/upload_State.dart';
-import 'package:phygen/features/upload/presentation/widgets/upload_area.dart';
-import 'package:phygen/features/upload/presentation/widgets/image_preview.dart';
-import 'package:phygen/features/upload/presentation/analysis_result_screen.dart';
+import 'package:phygen/features/Exam/bloc/upload_bloc.dart';
+import 'package:phygen/features/Exam/bloc/upload_Event.dart';
+import 'package:phygen/features/Exam/bloc/upload_State.dart';
+import 'package:phygen/features/Exam/presentation/widgets/upload_area.dart';
+import 'package:phygen/features/Exam/presentation/widgets/image_preview.dart';
+import 'package:phygen/features/Exam/presentation/screens/upload/upload_result_screen.dart';
 
 class UploadScreen extends StatefulWidget {
   const UploadScreen({Key? key}) : super(key: key);
@@ -78,6 +78,7 @@ class _UploadScreenState extends State<UploadScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              //upload area and image widget
               UploadArea(onFileSelected: _handleFileSelected),
               if (_selectedFile != null)
                 ImagePreview(

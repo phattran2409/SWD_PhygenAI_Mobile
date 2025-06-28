@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:phygen/features/upload/data/remote/upload_remote_data_source.dart';
-import 'package:phygen/features/upload/domain/entities/file_upload.dart';
-import 'package:phygen/features/upload/domain/repository/upload_repository.dart';
+import 'package:phygen/features/Exam/data/remote/upload_remote_data_source.dart';
+import 'package:phygen/features/Exam/domain/entities/file_upload.dart';
+import 'package:phygen/features/Exam/domain/repository/upload_repository.dart';
 
 class UploadRepositoryImpl implements UploadRepository {
   final UploadRemoteDataSource remoteDataSource;
@@ -21,7 +21,7 @@ class UploadRepositoryImpl implements UploadRepository {
       throw Exception('Failed to upload file: $e');
     }
   }
-  
+
   @override
   Future<void> removeFile() async {
     try {
@@ -31,7 +31,7 @@ class UploadRepositoryImpl implements UploadRepository {
       throw Exception('Failed to remove file: $e');
     }
   }
-  
+
   @override
   Future<void> resetUpload() async {
     try {
@@ -41,7 +41,7 @@ class UploadRepositoryImpl implements UploadRepository {
       throw Exception('Failed to reset upload: $e');
     }
   }
-  
+
   @override
   Future<File> selectFile() async {
     if (_selectedFile != null) {

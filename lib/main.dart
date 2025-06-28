@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,7 +12,8 @@ import 'package:phygen/features/Home/homePage.dart';
 import 'package:phygen/features/Profile/presentation/profilePages.dart';
 import 'features/Auth/presentation/pages/loginPages.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'features/upload/presentation/upload_screen.dart';
+import 'features/Exam/presentation/screens/upload/upload_screen.dart';
+import 'features/Exam/presentation/screens/demo_screens.dart';
 import 'core/di/injection_container.dart' as di;
 
 
@@ -97,6 +97,7 @@ class MyApp extends StatelessWidget {
           '/upload': (context) => const UploadScreen(),
           '/profile': (context) =>  ProfilePage(),
           '/home': (context) => const MyHomePage(),
+          '/demo-screens': (context) => const DemoScreens(),
         },  
         debugShowCheckedModeBanner: false,  
          
