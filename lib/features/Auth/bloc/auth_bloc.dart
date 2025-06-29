@@ -7,17 +7,21 @@ import 'package:phygen/features/Auth/domain/usecases/logout_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/signup_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/google_signIn_usecase.dart';
 import 'package:phygen/features/Auth/domain/entities/user.dart';
+import 'package:phygen/core/services/notification_service.dart';
+import 'package:phygen/core/services/fcm_registration_service.dart';
 
 class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
   final LoginUsecase loginUsecase;
   final SignUpUseCase signUpUseCase;
   final GoogleSignInUsecase googleSignInUsecase;
-  final LogoutUsecase logoutUsecase; 
+  final LogoutUsecase logoutUsecase;
+  
   AuthBloc({
     required this.loginUsecase,
     required this.signUpUseCase,
     required this.googleSignInUsecase,
-    required this.logoutUsecase,  
+    required this.logoutUsecase,
+
   }) : super(AuthInitialState()) {
     on<AuthLoginEvent>(_onAuthLoginEvent);
     on<AuthSignupEvent>(_onAuthSignupEvent);
@@ -53,15 +57,13 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoadingState());
     try {
-      final user = await signUpUseCase(
+      final success = await signUpUseCase(
         event.email,
         event.password,
         event.username,
       );
-
-      if (user != null) {
-        // ✅ Sau khi signup thành công, lưu user info
-        emit(AuthSuccessState(message: 'Signup successful'));
+      if (success) {
+        emit(AuthSuccessState(message: 'Signup successful! Welcome notification sent 🎉'));
       } else {
         emit(AuthErrorState(message: 'Signup failed'));
       }

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:phygen/core/services/API_Client.dart';
+import 'package:phygen/core/services/notification_service.dart';
 import 'package:phygen/core/services/token_storage_service.dart';
 import 'package:phygen/features/Auth/bloc/auth_bloc.dart';
 import 'package:phygen/features/Auth/data/remote/auth_remote_data_source.dart';
@@ -78,6 +79,7 @@ Future<void> init() async {
   //core services
   sl.registerLazySingleton(() => TokenStorageService());
   sl.registerLazySingleton(() => ApiClient(client: sl()));
+  sl.registerLazySingleton(() => NotificationService(apiClient: sl()));
   // Register other services or dependencies as needed
 
   sl.registerLazySingleton(() => http.Client());

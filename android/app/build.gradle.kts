@@ -8,12 +8,15 @@ plugins {
 
 android {
     namespace = "com.example.phygen"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+    compileSdk = 35
+    ndkVersion = "26.1.10909125" 
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        //  sourceCompatibility = JavaVersion.VERSION_1_8  // ✅ Downgrade từ 11 về 8
+        // targetCompatibility = JavaVersion.VERSION_1_8 
     }
 
     kotlinOptions {
@@ -29,6 +32,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -42,8 +46,9 @@ android {
     dependencies {
   // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.14.0"))
-
-
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")   
+    implementation("androidx.window:window:1.0.0")
+    implementation("androidx.window:window-java:1.0.0")
   // TODO: Add the dependencies for Firebase products you want to use
   // When using the BoM, don't specify versions in Firebase dependencies
   // https://firebase.google.com/docs/android/setup#available-libraries

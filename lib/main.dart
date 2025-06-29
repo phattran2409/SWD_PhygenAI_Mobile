@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:phygen/core/constants/api_firebase.dart';
 import 'package:phygen/core/di/bloc_provider.dart';
-import 'package:phygen/core/widgets/CircleNavbar.dart';
+import 'package:phygen/core/services/local_notification_services.dart';
 import 'package:phygen/features/Auth/bloc/auth_bloc.dart';
 import 'package:phygen/features/Auth/bloc/auth_state.dart';
 import 'package:phygen/features/Auth/presentation/pages/signupPage.dart';
+import 'package:phygen/features/Error/Error_page.dart';
 import 'package:phygen/features/Home/homePage.dart';
 import 'package:phygen/features/Profile/presentation/profilePages.dart';
 import 'features/Auth/presentation/pages/loginPages.dart';
@@ -15,33 +18,101 @@ import 'package:firebase_core/firebase_core.dart';
 import 'features/Exam/presentation/screens/upload/upload_screen.dart';
 import 'features/Exam/presentation/screens/demo_screens.dart';
 import 'core/di/injection_container.dart' as di;
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+// ✅ Background message handler
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('📱 Background message: ${message.messageId}');
+}
+
+// // ✅ Initialize Firebase Messaging
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   // await SystemChrome.setPreferredOrientations([
+//   //   DeviceOrientation.portraitUp,
+//   //   DeviceOrientation.portraitDown,
+//   // ]);
+ 
+//   // ✅ 1. Initialize HydratedStorage TRƯỚC KHI tạo bất kỳ Bloc nào
+//   final storageDir = await getApplicationDocumentsDirectory();
+//   print('📁 HydratedStorage path: ${storageDir.path}');
+
+//   HydratedBloc.storage = await HydratedStorage.build(
+//     storageDirectory: storageDir,
+//   );
+
+//   print('💾 HydratedStorage initialized: ${HydratedBloc.storage}');
+
+//   // LocalNotificationServices.initialize(); // Initialize local notifications
+
+//   await Firebase.initializeApp();
+//   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+//   // Trong main.dart
+//   await FirebaseMessageApi().initializeFirebaseMessaging();
+
+//   await di.init(); // Initialize dependency injection
+
+//   Bloc.observer = AppBlocObserver();
+//   runApp(const MyApp());
+  
+// }
+
 
 
 void main() async {
-   
+  // ✅ STEP 1: Initialize Flutter bindings
   WidgetsFlutterBinding.ensureInitialized();
-
-    // ✅ 1. Initialize HydratedStorage TRƯỚC KHI tạo bất kỳ Bloc nào
-  HydratedBloc.storage = await HydratedStorage.build(
-    storageDirectory: await getApplicationDocumentsDirectory(),
-  );
-
-  final storageDir = await getApplicationDocumentsDirectory();
-  print('📁 HydratedStorage path: ${storageDir.path}');
   
-  HydratedBloc.storage = await HydratedStorage.build(
-    storageDirectory: storageDir,
-  );
-  
-  print('💾 HydratedStorage initialized: ${HydratedBloc.storage != null}');
-  
-  await Firebase.initializeApp();
+  // ✅ STEP 2: Set orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
-  await di.init(); // Initialize dependency injection
+  try {
+    // ✅ STEP 3: Initialize HydratedStorage ONCE ONLY
+    final storageDir = await getApplicationDocumentsDirectory();
+    HydratedBloc.storage = await HydratedStorage.build(
+      storageDirectory: storageDir,
+    );
+    print('💾 HydratedStorage initialized: ${storageDir.path}');
 
-  Bloc.observer = AppBlocObserver();
-  runApp(const MyApp());
+    // ✅ STEP 4: Initialize Firebase
+    await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    print('🔥 Firebase initialized');
+
+    // ✅ STEP 5: Initialize Firebase Messaging
+    await FirebaseMessageApi().initializeFirebaseMessaging();
+    print('📱 FCM initialized');
+
+    // ✅ STEP 6: Initialize Local Notifications
+    await LocalNotificationServices.initialize();
+    print('🔔 Local notifications initialized');
+
+    // ✅ STEP 7: Initialize dependency injection
+    await di.init();
+    print('💉 DI initialized');
+
+
+    // ✅ STEP 8: Set Bloc observer
+    Bloc.observer = AppBlocObserver();
+
+    // ✅ STEP 9: Run app
+    runApp(const MyApp());
+    
+  } catch (e, stackTrace) {
+    print('❌ Error initializing app: $e');
+    print('📍 Stack trace: $stackTrace');
+    
+    // Show error screen
+    runApp(ErrorApp(error: e.toString()));
+  }
 }
+
+
 // Bloc Observer to monitor Bloc events and states
 class AppBlocObserver extends BlocObserver {
   @override
@@ -53,7 +124,9 @@ class AppBlocObserver extends BlocObserver {
   @override
   void onTransition(Bloc bloc, Transition transition) {
     super.onTransition(bloc, transition);
-    print('🔄 ${bloc.runtimeType}: ${transition.currentState.runtimeType} → ${transition.nextState.runtimeType}');
+    print(
+      '🔄 ${bloc.runtimeType}: ${transition.currentState.runtimeType} → ${transition.nextState.runtimeType}',
+    );
   }
 
   @override
@@ -104,7 +177,6 @@ class MyApp extends StatelessWidget {
       );
         },
       ),
-      
     );
   }
 }
@@ -115,17 +187,15 @@ class AuthWrapper extends StatelessWidget {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         print('🏠 AuthWrapper - State: ${state.runtimeType}');
-        
+
         // ✅ HydratedBloc tự động restore state
         if (state is AuthLoggedInState) {
           print('✅ User logged in, showing profile');
           return MyHomePage(); // Hoặc MainNavigator với bottom nav
         }
-        
+
         if (state is AuthLoadingState) {
-          return Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+          return Scaffold(body: Center(child: CircularProgressIndicator()));
         }
 
         print('🔐 User not logged in, showing login');
