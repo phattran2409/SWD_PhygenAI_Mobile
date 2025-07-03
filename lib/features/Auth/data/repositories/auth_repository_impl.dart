@@ -20,6 +20,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final userModel = await remoteDataSource.login(email, password);
     if (userModel != null) {
       // Store the token in the TokenStorageService
+       await LocalNotificationServices.showWelcomeNotification(email);
       await tokenStorageService.saveToken(userModel.token!);
     }
     return userModel;

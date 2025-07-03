@@ -58,6 +58,17 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+            <!-- Google Sign-In -->
+<meta-data android:name="com.google.android.gms.version"
+           android:value="@integer/google_play_services_version" />
+
+<activity
+    android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
+    android:excludeFromRecents="true"
+    android:exported="false"
+    android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

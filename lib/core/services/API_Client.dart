@@ -103,11 +103,14 @@ class ApiClient {
   Future<http.StreamedResponse> sendMultipartRequest(http.MultipartRequest request) async {
     try {
       // final token = await tokenStorageService.getToken();
-      
+      // print('🔑 Token in sendMultipartRequest: $token'); // Log token for debugging
+      // if (token == null) {
+      //   throw Exception('Authorization token is null. Please login again.');
+      // }
       // // Add headers
       // request.headers.addAll({
       //   'accept': '*/*',
-      //   if (token != null) 'Authorization': 'Bearer $token',
+      //   'Authorization': '$token',
       // });
 
       // Send request with timeout
@@ -122,7 +125,7 @@ class ApiClient {
       if (response.statusCode == 200) {
         return response;
       } else {
-        throw Exception('Request failed with status: ${response.statusCode}');
+        throw Exception('Request failed with status: \\${response.statusCode}');
       }
     } catch (e) {
       print('Error in sendMultipartRequest: $e');
