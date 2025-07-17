@@ -52,27 +52,38 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<bool> signup(String email, String password, String username) async {
     try {
-      print(
-        'API Client: ${apiClient.client}, Endpoint: ${ApiConstants.signupEndpoint}',
-      );
+      print('API Client: ${apiClient.client}, Endpoint: ${ApiConstants.signupEndpoint}');
       final response = await apiClient.post(
         ApiConstants.signupEndpoint,
         body: {'email': email, 'password': password, 'userName': username},
       );
       print('Response: ${response!.body}');
       print('Status Code: ${response.statusCode}');
-      // Check if the response is successful
       if (response == null) {
         throw Exception('Failed to connect to the server.');
       }
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
         return data['isSuccess'] ? true : false;
+      } else if (response.statusCode == 400) {
+        final data = jsonDecode(response.body);
+        if (data['errors'] != null) {
+          final errors = data['errors'] as Map<String, dynamic>;
+          final errorMessages = errors.entries
+              .map((e) => "${e.key}: ${(e.value as List).join(', ')}")
+              .join("\n");
+          throw Exception(errorMessages);
+        } else if (data['title'] != null) {
+          throw Exception(data['title']);
+        } else {
+          throw Exception('Signup failed with status 400.');
+        }
+      } else {
+        throw Exception('Signup failed with status: ${response.statusCode}');
       }
-      return false;
     } catch (e) {
       print('Signup error: $e');
-      return false;
+      throw Exception(e.toString());
     }
   }
 

@@ -91,7 +91,7 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen> {
             onPressed: () => Navigator.pop(context),
           ),
           title: const Text(
-            'Scan Result',
+            'Analyzing Result',
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -171,7 +171,7 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Question ${q.number}: ${q.text}',
+                                'Question ${index + 1}: ${q.question}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -182,17 +182,39 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen> {
                               Text('B. ${q.b}'),
                               Text('C. ${q.c}'),
                               Text('D. ${q.d}'),
-                              if (q.correct != null)
+                              if (q.answer != null)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4.0),
                                   child: Text(
-                                    'Correct Answer: ${q.correct}',
+                                    'Correct Answer: ${q.answer}',
                                     style: const TextStyle(
                                       color: Colors.green,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ),
+                              const SizedBox(height: 4),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    Chip(
+                                      label: Text('Difficulty: ${q.difficulty}', style: TextStyle(color: Colors.white)),
+                                      backgroundColor: Colors.blue.shade400,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Chip(
+                                      label: Text('Chapter: ${q.chapter} - ${q.chapterName}', style: TextStyle(color: Colors.white)),
+                                      backgroundColor: Colors.purple.shade400,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Chip(
+                                      label: Text('Topic: ${q.topic} - ${q.topicName}', style: TextStyle(color: Colors.white)),
+                                      backgroundColor: Colors.orange.shade400,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         );
@@ -264,8 +286,8 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen> {
                             ),
                           );
                         },
-                        icon: const Icon(Icons.share),
-                        label: const Text('Analyze'),
+                        icon: const Icon(Icons.create_new_folder),
+                        label: const Text('Create Exam'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,

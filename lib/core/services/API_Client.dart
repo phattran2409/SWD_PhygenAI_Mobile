@@ -102,16 +102,15 @@ class ApiClient {
 
   Future<http.StreamedResponse> sendMultipartRequest(http.MultipartRequest request) async {
     try {
-      // final token = await tokenStorageService.getToken();
-      // print('🔑 Token in sendMultipartRequest: $token'); // Log token for debugging
-      // if (token == null) {
-      //   throw Exception('Authorization token is null. Please login again.');
-      // }
-      // // Add headers
-      // request.headers.addAll({
-      //   'accept': '*/*',
-      //   'Authorization': '$token',
-      // });
+      final token = await tokenStorageService.getToken();
+      if (token == null) {
+        throw Exception('Authorization token is null. Please login again.');
+      }
+      // Add headers
+      request.headers.addAll({
+        'accept': '*/*',
+        'Authorization': 'Bearer $token',
+      });
 
       // Send request with timeout
       final response = await request.send().timeout(
