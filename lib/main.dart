@@ -26,45 +26,10 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   print('📱 Background message: ${message.messageId}');
 }
-
-// // ✅ Initialize Firebase Messaging
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   // await SystemChrome.setPreferredOrientations([
-//   //   DeviceOrientation.portraitUp,
-//   //   DeviceOrientation.portraitDown,
-//   // ]);
- 
-//   // ✅ 1. Initialize HydratedStorage TRƯỚC KHI tạo bất kỳ Bloc nào
-//   final storageDir = await getApplicationDocumentsDirectory();
-//   print('📁 HydratedStorage path: ${storageDir.path}');
-
-//   HydratedBloc.storage = await HydratedStorage.build(
-//     storageDirectory: storageDir,
-//   );
-
-//   print('💾 HydratedStorage initialized: ${HydratedBloc.storage}');
-
-//   // LocalNotificationServices.initialize(); // Initialize local notifications
-
-//   await Firebase.initializeApp();
-//   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-//   // Trong main.dart
-//   await FirebaseMessageApi().initializeFirebaseMessaging();
-
-//   await di.init(); // Initialize dependency injection
-
-//   Bloc.observer = AppBlocObserver();
-//   runApp(const MyApp());
-  
-// }
-
-
-
 void main() async {
   // ✅ STEP 1: Initialize Flutter bindings
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // ✅ STEP 2: Set orientations
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -87,7 +52,6 @@ void main() async {
     // ✅ STEP 5: Initialize Firebase Messaging
     await FirebaseMessageApi().initializeFirebaseMessaging();
     print('📱 FCM initialized');
-
     // ✅ STEP 6: Initialize Local Notifications
     await LocalNotificationServices.initialize();
     print('🔔 Local notifications initialized');
@@ -96,22 +60,17 @@ void main() async {
     await di.init();
     print('💉 DI initialized');
 
-
     // ✅ STEP 8: Set Bloc observer
     Bloc.observer = AppBlocObserver();
 
     // ✅ STEP 9: Run app
     runApp(const MyApp());
-    
   } catch (e, stackTrace) {
     print('❌ Error initializing app: $e');
     print('📍 Stack trace: $stackTrace');
-    
-    // Show error screen
-    runApp(ErrorApp(error: e.toString()));
+
   }
 }
-
 
 // Bloc Observer to monitor Bloc events and states
 class AppBlocObserver extends BlocObserver {
@@ -149,32 +108,31 @@ class MyApp extends StatelessWidget {
         splitScreenMode: true,
         builder: (context, child) {
           return MaterialApp(
-        title: 'Phygen AI',
-        theme: ThemeData(
-         appBarTheme: AppBarTheme(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-          ),
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-            primary: Colors.blue,
-            secondary: Colors.blueAccent,
-            inversePrimary: Colors.white,
-          ),
-          useMaterial3: true,
-        ),
-        home: AuthWrapper(),
-        routes: {
-          '/login': (context) => const LoginPage(),
-          '/signup': (context) => const SignUpPage(),
-          '/upload': (context) => const UploadScreen(),
-          '/profile': (context) =>  ProfilePage(),
-          '/home': (context) => const MyHomePage(),
-          '/demo-screens': (context) => const DemoScreens(),
-        },  
-        debugShowCheckedModeBanner: false,  
-         
-      );
+            title: 'Phygen AI',
+            theme: ThemeData(
+              appBarTheme: AppBarTheme(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.blue,
+                primary: Colors.blue,
+                secondary: Colors.blueAccent,
+                inversePrimary: Colors.white,
+              ),
+              useMaterial3: true,
+            ),
+            home: AuthWrapper(),
+            routes: {
+              '/login': (context) => const LoginPage(),
+              '/signup': (context) => const SignUpPage(),
+              '/upload': (context) => const UploadScreen(),
+              '/profile': (context) => ProfilePage(),
+              '/home': (context) => const MyHomePage(),
+              '/demo-screens': (context) => const DemoScreens(),
+            },
+            debugShowCheckedModeBanner: false,
+          );
         },
       ),
     );
