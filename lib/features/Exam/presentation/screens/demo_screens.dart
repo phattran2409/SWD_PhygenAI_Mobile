@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:phygen/features/Auth/bloc/auth_bloc.dart';
+import 'package:phygen/features/Auth/bloc/auth_state.dart';
 import 'analyze/analyze_screen.dart';
 import 'grenate_exam/generate_exam_screen.dart';
 import 'exam_preview/exam_preview_screen.dart';
@@ -10,8 +13,16 @@ class DemoScreens extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+    final authState = context.watch<AuthBloc>().state;
+    
+    if(authState is! AuthLoggedInState){
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/login');
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+      return Scaffold(
+        appBar: AppBar(
         title: const Text('Demo - Tất cả các Screen'),
         backgroundColor: Colors.indigo[600],
         foregroundColor: Colors.white,

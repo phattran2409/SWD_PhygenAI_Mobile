@@ -33,15 +33,20 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               // ✅ Custom AppBar
               _buildCustomAppBar(),
-              
+
               // ✅ Body
-              Expanded(
-                child: _buildBody(),
-              ),
-              
+              Expanded(child: _buildBody()),
+
               // ✅ Bottom Navigation
             ],
           ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.pushNamed(context, '/chat');
+          },
+          child: const Icon(Icons.chat_bubble_outline),
+          backgroundColor: Colors.blue,
         ),
         bottomNavigationBar: _buildBottomNav(
           selectedIndex: _selectedIndex,
@@ -54,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
               MaterialPageRoute(builder: (context) => _pages[index]),
             );
           },
-        )
+        ),
       ),
     );
   }
@@ -102,7 +107,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   );
                 }
-                return const Text('Welcome!', 
+                return const Text(
+                  'Welcome!',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20,
@@ -113,8 +119,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.account_circle_rounded, 
-              color: Colors.black, size: 32),
+            icon: const Icon(
+              Icons.account_circle_rounded,
+              color: Colors.black,
+              size: 32,
+            ),
             onPressed: () {
               Navigator.pushNamed(context, '/login');
             },
@@ -159,22 +168,19 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // ✅ Action cards
-                
-                        _buildActionCard(
-                          icon: Icons.auto_awesome,
-                          iconColor: Colors.green,
-                          backgroundColor: const Color(0xFFE6F7EC),
-                          title: 'Upload',
-                          subtitle: 'Add Your File Here',
-                          onTap: () => Navigator.pushNamed(context, '/upload'),
-                        ),
-                    
-                   
-                  
+                  _buildActionCard(
+                    icon: Icons.auto_awesome,
+                    iconColor: Colors.green,
+                    backgroundColor: const Color(0xFFE6F7EC),
+                    title: 'Upload',
+                    subtitle: 'Add Your File Here',
+                    onTap: () => Navigator.pushNamed(context, '/upload'),
+                  ),
+
                   const SizedBox(height: 16),
-                  
+
                   // ✅ Demo button
                   _buildActionCard(
                     icon: Icons.phone_android,
@@ -184,58 +190,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     subtitle: 'View All Exam Screens',
                     onTap: () => Navigator.pushNamed(context, '/demo-screens'),
                   ),
-                  
-                  const SizedBox(height: 32),
-                  
-                  // ✅ Exam section
-                  const Text(
-                    'Your created Exam',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildActionCard(
-                          icon: Icons.folder,
-                          iconColor: Colors.purple,
-                          backgroundColor: Colors.purple.withOpacity(0.05),
-                          title: 'Saved Exam',
-                          subtitle: 'View Your Saved Exam',
-                          onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => const SavedExamsScreen(),
-                                ),
-                              ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildActionCard(
-                          icon: Icons.history,
-                          iconColor: Colors.orange,
-                          backgroundColor: Colors.orange.withOpacity(0.05),
-                          title: 'History Analysis',
-                          subtitle: 'View Your History',
-                          onTap:  () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) =>
-                                          const HistoryAnalyzedScreen(),
-                                ),
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 20), // Bottom spacing
           ],
         ),
@@ -272,10 +230,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             Icon(icon, color: iconColor, size: 36),
             const SizedBox(height: 8),
-            Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Text(
               subtitle,
@@ -288,9 +243,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-Widget _buildBottomNav({
+  Widget _buildBottomNav({
     required int selectedIndex,
-    required Function(int) onTap}) {
+    required Function(int) onTap,
+  }) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),

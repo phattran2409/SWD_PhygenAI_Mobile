@@ -11,6 +11,7 @@ abstract class GoogleSignInRemoteDataSource {
 class GoogleSignInRemoteDataSourceImpl implements GoogleSignInRemoteDataSource {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
+
   @override
   Future<UserModel?> signInWithGoogle() async {
     final googleUser = await _googleSignIn.signIn();

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:phygen/features/ChatAI/model/ExamQuestionModel.dart';
 
 class ExamPreviewScreen extends StatefulWidget {
-  final List<Map<String, dynamic>>? questions;
-  final Map<String, dynamic>? examInfo;
+  final List<ExamQuestionModel>? examQuestions;
 
   const ExamPreviewScreen({
     Key? key,
-    this.questions,
-    this.examInfo,
+    this.examQuestions,
   }) : super(key: key);
 
   @override
@@ -16,23 +14,34 @@ class ExamPreviewScreen extends StatefulWidget {
 }
 
 class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
-  late List<Map<String, dynamic>> questions;
-  late Map<String, dynamic> examInfo;
-  bool isEditing = false;
-  final TextEditingController _titleController = TextEditingController();
+  List<ExamQuestionModel> questions = [];
 
   @override
   void initState() {
     super.initState();
-    questions = widget.questions ?? _getDefaultQuestions();
-    examInfo = widget.examInfo ?? _getDefaultExamInfo();
-    _titleController.text = examInfo['title'] ?? 'Đề thi mới';
+    _initializeQuestions();
   }
 
-  @override
-  void dispose() {
-    _titleController.dispose();
-    super.dispose();
+  void _initializeQuestions() {
+    // Check route arguments
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final routeArgs = ModalRoute.of(context)?.settings.arguments;
+      
+      if (routeArgs is List<ExamQuestionModel>) {
+        setState(() {
+          questions = routeArgs;
+        });
+      } else if (widget.examQuestions != null) {
+        setState(() {
+          questions = widget.examQuestions!;
+        });
+      }
+    });
+
+    // Fallback initialization
+    if (widget.examQuestions != null) {
+      questions = widget.examQuestions!;
+    }
   }
 
   @override
@@ -40,88 +49,61 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Xem trước đề thi'),
-        backgroundColor: Colors.blue[600],
+        backgroundColor: const Color(0xFF9F5FFF),
         foregroundColor: Colors.white,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(isEditing ? Icons.save : Icons.edit),
-            onPressed: () {
-              setState(() {
-                isEditing = !isEditing;
-                if (!isEditing) {
-                  // Save changes
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Đã lưu thay đổi')),
-                  );
-                }
-              });
-            },
-          ),
-        ],
       ),
-      body: Column(
-        children: [
-          // Header với thông tin đề thi
-          _buildExamHeader(),
-          
-          // Danh sách câu hỏi
-          Expanded(
-            child: _buildQuestionsList(),
-          ),
-          
-          // Bottom actions
-          _buildBottomActions(),
-        ],
-      ),
+      backgroundColor: const Color(0xFFF3E8FF),
+      body: questions.isEmpty
+          ? const Center(
+              child: Text(
+                'Không có câu hỏi nào',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            )
+          : Column(
+              children: [
+                _buildHeader(),
+                Expanded(child: _buildQuestionsList()),
+                _buildBottomActions(),
+              ],
+            ),
     );
   }
 
-  Widget _buildExamHeader() {
+  Widget _buildHeader() {
+    if (questions.isEmpty) return const SizedBox.shrink();
+    
+    final firstQuestion = questions.first;
+    
     return Card(
       margin: const EdgeInsets.all(16),
-      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (isEditing)
-              TextField(
-                controller: _titleController,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Nhập tiêu đề đề thi',
-                ),
-              )
-            else
-              Text(
-                _titleController.text,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            const SizedBox(height: 12),
             Row(
               children: [
-                _buildInfoChip('Lớp', examInfo['grade'] ?? 'N/A'),
+                const Icon(Icons.quiz, color: Color(0xFF9F5FFF)),
                 const SizedBox(width: 8),
-                _buildInfoChip('Chương', examInfo['chapter'] ?? 'N/A'),
-                const SizedBox(width: 8),
-                _buildInfoChip('Dạng', examInfo['type'] ?? 'N/A'),
+                Text(
+                  'Đề thi ${firstQuestion.className} - ${firstQuestion.chapterName}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF9F5FFF),
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 8),
-            Row(
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
               children: [
-                _buildInfoChip('Độ khó', examInfo['difficulty'] ?? 'N/A'),
-                const SizedBox(width: 8),
-                _buildInfoChip('Số câu', '${questions.length}'),
+                _buildChip('📚 ${firstQuestion.className}', Colors.blue),
+                _buildChip('📖 ${firstQuestion.chapterName}', Colors.green),
+                _buildChip('🔢 ${questions.length} câu', Colors.purple),
               ],
             ),
           ],
@@ -130,19 +112,19 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
     );
   }
 
-  Widget _buildInfoChip(String label, String value) {
+  Widget _buildChip(String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.blue[50],
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue[200]!),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Text(
-        '$label: $value',
+        text,
         style: TextStyle(
           fontSize: 12,
-          color: Colors.blue[700],
+          color: color,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -157,29 +139,26 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
         final question = questions[index];
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
-          elevation: 1,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Question number and content
+                // Question header
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 24,
-                      height: 24,
+                      width: 32,
+                      height: 32,
                       decoration: BoxDecoration(
-                        color: Colors.blue[600],
-                        borderRadius: BorderRadius.circular(12),
+                        color: const Color(0xFF9F5FFF),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: Center(
                         child: Text(
-                          '${question['id']}',
+                          '${index + 1}',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -187,133 +166,107 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: isEditing
-                        ? TextField(
-                            controller: TextEditingController(text: question['question']),
-                            maxLines: null,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Nhập câu hỏi',
-                            ),
-                            onChanged: (value) {
-                              questions[index]['question'] = value;
-                            },
-                          )
-                        : Text(
-                            question['question'],
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                
-                // Options
-                if (question['options'] != null) ...[
-                  ...List.generate(question['options'].length, (optionIndex) {
-                    final option = question['options'][optionIndex];
-                    final optionLetter = String.fromCharCode(65 + optionIndex);
-                    final isCorrect = question['correctAnswer'] == optionLetter;
-                    
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: isCorrect ? Colors.green : Colors.grey[300],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Center(
-                              child: Text(
-                                optionLetter,
-                                style: TextStyle(
-                                  color: isCorrect ? Colors.white : Colors.grey[700],
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                          Text(
+                            '${question.className} • ${question.chapterName}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: isEditing
-                              ? TextField(
-                                  controller: TextEditingController(text: option),
-                                  decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'Nhập lựa chọn',
-                                  ),
-                                  onChanged: (value) {
-                                    questions[index]['options'][optionIndex] = value;
-                                  },
-                                )
-                              : Text(
-                                  option,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: isCorrect ? Colors.green[700] : null,
-                                    fontWeight: isCorrect ? FontWeight.w500 : null,
-                                  ),
-                                ),
+                          const SizedBox(height: 4),
+                          Text(
+                            question.question,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
-                    );
-                  }),
-                ],
-                
-                // Explanation (if available)
-                if (question['explanation'] != null) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[50],
-                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Giải thích:',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue[700],
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        isEditing
-                          ? TextField(
-                              controller: TextEditingController(text: question['explanation']),
-                              maxLines: null,
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                hintText: 'Nhập giải thích',
-                              ),
-                              onChanged: (value) {
-                                questions[index]['explanation'] = value;
-                              },
-                            )
-                          : Text(
-                              question['explanation'],
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.blue[600],
-                              ),
-                            ),
-                      ],
+                  ],
+                ),
+                const SizedBox(height: 16),
+                
+                // Options
+                _buildOption('A', question.a, question.answer == 'A'),
+                _buildOption('B', question.b, question.answer == 'B'),
+                _buildOption('C', question.c, question.answer == 'C'),
+                _buildOption('D', question.d, question.answer == 'D'),
+                
+                // Topic info
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF9F5FFF).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Chủ đề: ${question.topicName}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: const Color(0xFF9F5FFF),
                     ),
                   ),
-                ],
+                ),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildOption(String letter, String text, bool isCorrect) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isCorrect ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isCorrect ? Colors.green.withOpacity(0.3) : Colors.grey.withOpacity(0.2),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: isCorrect ? Colors.green : const Color(0xFF9F5FFF),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Text(
+                letter,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 14,
+                color: isCorrect ? Colors.green[700] : Colors.black87,
+                fontWeight: isCorrect ? FontWeight.w500 : FontWeight.normal,
+              ),
+            ),
+          ),
+          if (isCorrect)
+            const Icon(Icons.check_circle, color: Colors.green, size: 20),
+        ],
+      ),
     );
   }
 
@@ -335,15 +288,12 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
         children: [
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: () {
-                // Export to PDF
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Đang xuất PDF...')),
-                );
-              },
-              icon: const Icon(Icons.picture_as_pdf),
-              label: const Text('Xuất PDF'),
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('Quay lại'),
               style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF9F5FFF),
+                side: const BorderSide(color: Color(0xFF9F5FFF)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
@@ -352,16 +302,18 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
           Expanded(
             child: ElevatedButton.icon(
               onPressed: () {
-                // Save to system
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Đã lưu vào hệ thống')),
+                  const SnackBar(
+                    content: Text('💾 Đã lưu đề thi!'),
+                    backgroundColor: Colors.green,
+                  ),
                 );
                 Navigator.pop(context);
               },
               icon: const Icon(Icons.save),
               label: const Text('Lưu đề thi'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[600],
+                backgroundColor: const Color(0xFF9F5FFF),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
@@ -371,34 +323,4 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
       ),
     );
   }
-
-  List<Map<String, dynamic>> _getDefaultQuestions() {
-    return [
-      {
-        'id': 1,
-        'question': 'Câu hỏi mẫu 1: Đây là nội dung câu hỏi mẫu.',
-        'options': ['A. Lựa chọn A', 'B. Lựa chọn B', 'C. Lựa chọn C', 'D. Lựa chọn D'],
-        'correctAnswer': 'A',
-        'explanation': 'Giải thích cho câu hỏi 1',
-      },
-      {
-        'id': 2,
-        'question': 'Câu hỏi mẫu 2: Đây là nội dung câu hỏi mẫu thứ hai.',
-        'options': ['A. Lựa chọn A', 'B. Lựa chọn B', 'C. Lựa chọn C', 'D. Lựa chọn D'],
-        'correctAnswer': 'B',
-        'explanation': 'Giải thích cho câu hỏi 2',
-      },
-    ];
-  }
-
-  Map<String, dynamic> _getDefaultExamInfo() {
-    return {
-      'title': 'Đề thi mẫu',
-      'grade': 'Lớp 11',
-      'chapter': 'Chương 2',
-      'type': 'Trắc nghiệm',
-      'difficulty': 'Trung bình',
-      'questionCount': 2,
-    };
-  }
-} 
+}

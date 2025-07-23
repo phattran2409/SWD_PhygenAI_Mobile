@@ -20,7 +20,7 @@ class UploadScreen extends StatefulWidget {
 
 class _UploadScreenState extends State<UploadScreen> {
   File? _selectedFile;
-   int _selectedIndex = 1;
+  int _selectedIndex = 1;
   final List<Widget> _pages = [MyHomePage(), UploadScreen(), ProfilePage()];
   void _handleFileSelected(File file) {
     setState(() {
@@ -73,37 +73,36 @@ class _UploadScreenState extends State<UploadScreen> {
         ],
       ),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(45.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              //upload area and image widget
-              UploadArea(onFileSelected: _handleFileSelected),
-              if (_selectedFile != null)
-                ImagePreview(
-                  file: _selectedFile!,
-                  onClear: _handleClear,
-                  onAnalyze: _handleAnalyze,
-                ),
-            ],
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(45.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                //upload area and image widget
+                UploadArea(onFileSelected: _handleFileSelected),
+                if (_selectedFile != null)
+                  ImagePreview(
+                    file: _selectedFile!,
+                    onClear: _handleClear,
+                    onAnalyze: _handleAnalyze,
+                  ),
+              ],
+            ),
           ),
         ),
       ),
       bottomNavigationBar: MyCircleNavbar(
         selectedIndex: _selectedIndex,
-        onItemSelected:  
-          (index) {
-            setState(() {
-              // Navigate to the selected page
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => _pages[index],
-                ),
-              );
-            });
-          },
+        onItemSelected: (index) {
+          setState(() {
+            // Navigate to the selected page
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => _pages[index]),
+            );
+          });
+        },
       ),
     );
   }

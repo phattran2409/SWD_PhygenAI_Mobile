@@ -13,6 +13,7 @@ import 'package:phygen/features/Auth/domain/usecases/google_signIn_usecase.dart'
 import 'package:phygen/features/Auth/domain/usecases/login_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/logout_usecase.dart';
 import 'package:phygen/features/Auth/domain/usecases/signup_usecase.dart';
+import 'package:phygen/features/ChatAI/bloc/exam_generation_bloc.dart';
 import 'package:phygen/features/Exam/bloc/upload_bloc.dart';
 import 'package:phygen/features/Exam/data/remote/upload_remote_data_source.dart';
 import 'package:phygen/features/Exam/domain/usecases/upload_usecase.dart';
@@ -35,7 +36,11 @@ Future<void> init() async {
 
   // bloc Upload
   sl.registerFactory(() => UploadBloc(uploadUsecase: sl()));
+  // Bloc Exam Generation
 
+  sl.registerFactory<ExamGenerationBloc>(
+    () => ExamGenerationBloc(apiClient: sl<ApiClient>()),
+  );
   // Use cases
   //// Auth
   sl.registerLazySingleton(() => LoginUsecase(authRepository: sl()));

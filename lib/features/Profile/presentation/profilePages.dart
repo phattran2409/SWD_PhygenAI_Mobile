@@ -383,7 +383,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     // Profile Avatar
                     Container(
                       transform: Matrix4.translationValues(0, -50.h, 0),
-                      color: const Color.fromARGB(255, 151, 36, 36),
+                    
                       child: CircleAvatar(
                         radius: 50.r,
                         backgroundColor: Colors.white,
