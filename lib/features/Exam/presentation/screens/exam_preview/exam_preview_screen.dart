@@ -1,46 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:phygen/features/ChatAI/model/ExamQuestionModel.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:phygen/features/Exam/ExamSaved/bloc/exam_set_detail_bloc.dart';
+import 'package:phygen/features/Exam/ExamSaved/bloc/exam_set_detail_event.dart';
+import 'package:phygen/features/Exam/ExamSaved/bloc/exam_set_detail_state.dart';
+import 'package:phygen/features/Exam/ExamSaved/model/exam_set_detail_model.dart';
 
 class ExamPreviewScreen extends StatefulWidget {
-  final List<ExamQuestionModel>? examQuestions;
-
-  const ExamPreviewScreen({
-    Key? key,
-    this.examQuestions,
-  }) : super(key: key);
+  const ExamPreviewScreen({Key? key}) : super(key: key);
 
   @override
   State<ExamPreviewScreen> createState() => _ExamPreviewScreenState();
 }
 
 class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
-  List<ExamQuestionModel> questions = [];
+  String? examId;
 
   @override
-  void initState() {
-    super.initState();
-    _initializeQuestions();
-  }
-
-  void _initializeQuestions() {
-    // Check route arguments
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final routeArgs = ModalRoute.of(context)?.settings.arguments;
-      
-      if (routeArgs is List<ExamQuestionModel>) {
-        setState(() {
-          questions = routeArgs;
-        });
-      } else if (widget.examQuestions != null) {
-        setState(() {
-          questions = widget.examQuestions!;
-        });
-      }
-    });
-
-    // Fallback initialization
-    if (widget.examQuestions != null) {
-      questions = widget.examQuestions!;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is Map && args['examId'] != null) {
+      examId = args['examId'];
+      context.read<ExamSetDetailBloc>().add(FetchExamSetDetailEvent(examId!));
     }
   }
 
@@ -48,34 +29,37 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Xem trước đề thi'),
+        title: const Text('Exam Detail'),
         backgroundColor: const Color(0xFF9F5FFF),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
       backgroundColor: const Color(0xFFF3E8FF),
-      body: questions.isEmpty
-          ? const Center(
-              child: Text(
-                'Không có câu hỏi nào',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-            )
-          : Column(
-              children: [
-                _buildHeader(),
-                Expanded(child: _buildQuestionsList()),
-                _buildBottomActions(),
-              ],
-            ),
+      body: BlocBuilder<ExamSetDetailBloc, ExamSetDetailState>(
+        builder: (context, state) {
+          if (state is ExamSetDetailLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is ExamSetDetailError) {
+            return Center(child: Text(state.message, style: const TextStyle(color: Colors.red)));
+          } else if (state is ExamSetDetailLoaded) {
+            return _buildExamDetail(state.examSetDetail);
+          }
+          return const SizedBox.shrink();
+        },
+      ),
     );
   }
 
-  Widget _buildHeader() {
-    if (questions.isEmpty) return const SizedBox.shrink();
-    
-    final firstQuestion = questions.first;
-    
+  Widget _buildExamDetail(ExamSetDetailModel detail) {
+    return Column(
+      children: [
+        _buildHeader(detail),
+        Expanded(child: _buildQuestionsList(detail.examSetQuestions)),
+      ],
+    );
+  }
+
+  Widget _buildHeader(ExamSetDetailModel detail) {
     return Card(
       margin: const EdgeInsets.all(16),
       child: Padding(
@@ -87,12 +71,14 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
               children: [
                 const Icon(Icons.quiz, color: Color(0xFF9F5FFF)),
                 const SizedBox(width: 8),
-                Text(
-                  'Đề thi ${firstQuestion.className} - ${firstQuestion.chapterName}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF9F5FFF),
+                Expanded(
+                  child: Text(
+                    detail.title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF9F5FFF),
+                    ),
                   ),
                 ),
               ],
@@ -101,10 +87,22 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
             Wrap(
               spacing: 8,
               children: [
-                _buildChip('📚 ${firstQuestion.className}', Colors.blue),
-                _buildChip('📖 ${firstQuestion.chapterName}', Colors.green),
-                _buildChip('🔢 ${questions.length} câu', Colors.purple),
+                _buildChip('Class: 11', Colors.blue),
+                _buildChip('Status: ${detail.status}', Colors.green),
+                _buildChip('Questions: ${detail.examSetQuestions.length}', Colors.purple),
               ],
+            ),
+            if (detail.description.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                detail.description,
+                style: const TextStyle(fontSize: 14, color: Colors.black87),
+              ),
+            ],
+            const SizedBox(height: 8),
+            Text(
+              'Created: ${_formatDate(detail.createdAt)}',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),
@@ -131,12 +129,17 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
     );
   }
 
-  Widget _buildQuestionsList() {
+  Widget _buildQuestionsList(List<ExamSetQuestionModel> questions) {
+    if (questions.isEmpty) {
+      return const Center(child: Text('No questions found', style: TextStyle(fontSize: 16, color: Colors.grey)));
+    }
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: questions.length,
       itemBuilder: (context, index) {
-        final question = questions[index];
+        final q = questions[index];
+        final question = q.question;
+        final option = question.questionOptionSet;
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           child: Padding(
@@ -166,52 +169,37 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${question.className} • ${question.chapterName}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            question.question,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        question.questionContent,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                
-                // Options
-                _buildOption('A', question.a, question.answer == 'A'),
-                _buildOption('B', question.b, question.answer == 'B'),
-                _buildOption('C', question.c, question.answer == 'C'),
-                _buildOption('D', question.d, question.answer == 'D'),
-                
-                // Topic info
+                if (option != null) ...[
+                  _buildOption('A', option.a, option.correct == 'A'),
+                  _buildOption('B', option.b, option.correct == 'B'),
+                  _buildOption('C', option.c, option.correct == 'C'),
+                  _buildOption('D', option.d, option.correct == 'D'),
+                ],
                 const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF9F5FFF).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'Chủ đề: ${question.topicName}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: const Color(0xFF9F5FFF),
-                    ),
-                  ),
+                Row(
+                  children: [
+                    _buildChip('Chapter: ${question.chapterId}', Colors.orange),
+                    const SizedBox(width: 8),
+                    _buildChip('Topic: ${question.topicId}', Colors.teal),
+                    const SizedBox(width: 8),
+                    _buildChip('Difficulty: ${question.difficulty}', Colors.red),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Created: ${_formatDate(question.createdAt)}',
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
             ),
@@ -270,57 +258,7 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
     );
   }
 
-  Widget _buildBottomActions() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, -1),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back),
-              label: const Text('Quay lại'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF9F5FFF),
-                side: const BorderSide(color: Color(0xFF9F5FFF)),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('💾 Đã lưu đề thi!'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.save),
-              label: const Text('Lưu đề thi'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF9F5FFF),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 }

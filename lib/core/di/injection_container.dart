@@ -19,6 +19,8 @@ import 'package:phygen/features/Exam/data/remote/upload_remote_data_source.dart'
 import 'package:phygen/features/Exam/domain/usecases/upload_usecase.dart';
 import 'package:phygen/features/Exam/domain/repository/upload_repository.dart';
 import 'package:phygen/features/Exam/data/repositories/upload_repository_impl.dart';
+import 'package:phygen/features/Exam/ExamSaved/bloc/exam_saved_bloc.dart';
+import 'package:phygen/features/Exam/ExamSaved/bloc/exam_set_detail_bloc.dart';
 import 'package:http/http.dart' as http;
 
 final GetIt sl = GetIt.instance;
@@ -89,4 +91,12 @@ Future<void> init() async {
 
   sl.registerLazySingleton(() => http.Client());
   sl.registerLazySingleton(() => FirebaseAuth.instance);
+
+  sl.registerFactory<ExamSavedBloc>(
+    () => ExamSavedBloc(apiClient: sl<ApiClient>()),
+  );
+
+  sl.registerFactory<ExamSetDetailBloc>(
+    () => ExamSetDetailBloc(apiClient: sl<ApiClient>()),
+  );
 }

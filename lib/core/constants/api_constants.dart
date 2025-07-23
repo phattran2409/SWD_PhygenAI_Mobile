@@ -9,4 +9,10 @@ class ApiConstants {
   static String get processImageEndpoint => '$baseUrl/Questions/process-image';
   static String get generateExamPrompt =>
       '$baseUrl/ExamSets/generate-exam-from-prompt';
+  static String get getExamSavedSets => '$baseUrl/ExamSets/get-exam-by-current-user';
+  static String downloadExamWordFile(String examSetId) => '$baseUrl/ExamSets/download-file-word-exam/$examSetId';
+  static String getExamSetsById(String examSetId) =>
+      '$baseUrl/ExamSets/$examSetId';
+  static String getExamSetById(String examSetId) => '$baseUrl/ExamSets/$examSetId';
+  static String deleteExamSet(String id) => '$baseUrl/ExamSets/$id';
 }

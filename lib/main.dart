@@ -14,6 +14,7 @@ import 'package:phygen/features/ChatAI/model/ExamQuestionModel.dart';
 import 'package:phygen/features/ChatAI/presentation/screens/ChatAI.dart';
 import 'package:phygen/features/Error/Error_page.dart';
 import 'package:phygen/features/Exam/presentation/screens/exam_preview/exam_preview_screen.dart';
+import 'package:phygen/features/Exam/presentation/screens/grenate_exam/generate_exam_screen.dart';
 import 'package:phygen/features/Home/homePage.dart';
 import 'package:phygen/features/Profile/presentation/profilePages.dart';
 import 'features/Auth/presentation/pages/loginPages.dart';
@@ -134,12 +135,13 @@ class MyApp extends StatelessWidget {
               '/home': (context) => const MyHomePage(),
               '/demo-screens': (context) => const DemoScreens(),
               '/chat': (context) => const ChatAI(),
+              '/generate-exam': (context) => const GenerateExamScreen(),
               '/view-exam': (context) {
                 final args = ModalRoute.of(context)?.settings.arguments;
                 
-                if (args is List<ExamQuestionModel>) {
-                  return ExamPreviewScreen(examQuestions: args);
-                }
+                // if (args is List<ExamQuestionModel>) {
+                //   return ExamPreviewScreen(examQuestions: args);
+                // }
                 
                 return const ExamPreviewScreen();
               },
