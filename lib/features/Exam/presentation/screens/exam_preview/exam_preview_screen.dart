@@ -4,10 +4,7 @@ import 'package:phygen/features/ChatAI/model/ExamQuestionModel.dart';
 class ExamPreviewScreen extends StatefulWidget {
   final List<ExamQuestionModel>? examQuestions;
 
-  const ExamPreviewScreen({
-    Key? key,
-    this.examQuestions,
-  }) : super(key: key);
+  const ExamPreviewScreen({Key? key, this.examQuestions}) : super(key: key);
 
   @override
   State<ExamPreviewScreen> createState() => _ExamPreviewScreenState();
@@ -23,10 +20,9 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
   }
 
   void _initializeQuestions() {
-    // Check route arguments
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final routeArgs = ModalRoute.of(context)?.settings.arguments;
-      
+
       if (routeArgs is List<ExamQuestionModel>) {
         setState(() {
           questions = routeArgs;
@@ -35,12 +31,17 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
         setState(() {
           questions = widget.examQuestions!;
         });
+      } else {
+        setState(() {
+          questions = [];
+        });
       }
     });
 
-    // Fallback initialization
     if (widget.examQuestions != null) {
       questions = widget.examQuestions!;
+    } else {
+      questions = [];
     }
   }
 
@@ -54,28 +55,29 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
         elevation: 0,
       ),
       backgroundColor: const Color(0xFFF3E8FF),
-      body: questions.isEmpty
-          ? const Center(
-              child: Text(
-                'Không có câu hỏi nào',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+      body:
+          questions.isEmpty
+              ? const Center(
+                child: Text(
+                  'Không có câu hỏi nào',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              )
+              : Column(
+                children: [
+                  _buildHeader(),
+                  Expanded(child: _buildQuestionsList()),
+                  _buildBottomActions(),
+                ],
               ),
-            )
-          : Column(
-              children: [
-                _buildHeader(),
-                Expanded(child: _buildQuestionsList()),
-                _buildBottomActions(),
-              ],
-            ),
     );
   }
 
   Widget _buildHeader() {
     if (questions.isEmpty) return const SizedBox.shrink();
-    
+
     final firstQuestion = questions.first;
-    
+
     return Card(
       margin: const EdgeInsets.all(16),
       child: Padding(
@@ -87,12 +89,14 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
               children: [
                 const Icon(Icons.quiz, color: Color(0xFF9F5FFF)),
                 const SizedBox(width: 8),
-                Text(
-                  'Đề thi ${firstQuestion.className} - ${firstQuestion.chapterName}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF9F5FFF),
+                Expanded(
+                  child: Text(
+                    'Đề thi ${firstQuestion.className} - ${firstQuestion.chapterName}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF9F5FFF),
+                    ),
                   ),
                 ),
               ],
@@ -137,6 +141,10 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
       itemCount: questions.length,
       itemBuilder: (context, index) {
         final question = questions[index];
+        print('Question object: $question');
+        print(
+          'Question at $index: ${question.question}',
+        ); // Log giá trị question.question
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           child: Padding(
@@ -177,11 +185,14 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
                             ),
                           ),
                           const SizedBox(height: 4),
+
+                          // ✅ Question với Regular Text + Unicode formatting
                           Text(
-                            question.question,
+                            question.question ?? '',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
+                              fontFamily: 'monospace', // hoặc bỏ nếu không cần
                             ),
                           ),
                         ],
@@ -190,13 +201,13 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                
-                // Options
+
+                // ✅ Options với Regular Text + Unicode formatting
                 _buildOption('A', question.a, question.answer == 'A'),
                 _buildOption('B', question.b, question.answer == 'B'),
                 _buildOption('C', question.c, question.answer == 'C'),
                 _buildOption('D', question.d, question.answer == 'D'),
-                
+
                 // Topic info
                 const SizedBox(height: 12),
                 Container(
@@ -221,18 +232,27 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
     );
   }
 
+  // ✅ Updated _buildOption với Regular Text
   Widget _buildOption(String letter, String text, bool isCorrect) {
+    print('Option $letter: $text'); // Log giá trị text
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isCorrect ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.05),
+        color:
+            isCorrect
+                ? Colors.green.withOpacity(0.1)
+                : Colors.grey.withOpacity(0.05),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isCorrect ? Colors.green.withOpacity(0.3) : Colors.grey.withOpacity(0.2),
+          color:
+              isCorrect
+                  ? Colors.green.withOpacity(0.3)
+                  : Colors.grey.withOpacity(0.2),
         ),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             width: 24,
@@ -253,6 +273,8 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
             ),
           ),
           const SizedBox(width: 12),
+
+          // ✅ Expanded với Regular Text + Unicode formatting
           Expanded(
             child: Text(
               text,
@@ -260,9 +282,11 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
                 fontSize: 14,
                 color: isCorrect ? Colors.green[700] : Colors.black87,
                 fontWeight: isCorrect ? FontWeight.w500 : FontWeight.normal,
+                fontFamily: 'monospace', // hoặc bỏ nếu không cần
               ),
             ),
           ),
+
           if (isCorrect)
             const Icon(Icons.check_circle, color: Colors.green, size: 20),
         ],

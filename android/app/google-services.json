@@ -15,19 +15,19 @@
       },
       "oauth_client": [
         {
+          "client_id": "339576007174-0nfq0krlq5k24a494sbip0s4d84fkc7h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.phygen",
+            "certificate_hash": "6d4541b67fc933af634ae89ffb6771bd6223ae53"
+          }
+        },
+        {
           "client_id": "339576007174-hl6fd7n0jo2hnmmrhgisgtm8v39ra37n.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.phygen",
             "certificate_hash": "247741ddf937c5c04fbb54ef93944fd18b1b5a9a"
-          }
-        },
-        {
-          "client_id": "339576007174-t5ml01clqr4n4etm92alu7sov19dgvsc.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.phygen",
-            "certificate_hash": "d1fc4d7738b7951400ecb1c0f5d86cb55617f3ac"
           }
         },
         {

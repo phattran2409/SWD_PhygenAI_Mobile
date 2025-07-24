@@ -60,3 +60,24 @@ class RetryGenerateExamEvent extends ExamGenerationEvent {
   @override
   int get hashCode => prompt.hashCode;
 } 
+
+
+class GenerateExamFromDropdownEvent extends ExamGenerationEvent {
+  final int quantity;
+  final int chapterId;
+  final int topicId;
+  final int classId;
+
+  const GenerateExamFromDropdownEvent({
+    required this.quantity,
+    required this.chapterId,
+    required this.topicId,
+    required this.classId,
+  });
+
+  @override
+  List<Object> get props => [quantity, chapterId, topicId, classId];
+
+  @override
+  String toString() => 'GenerateExamFromDropdownEvent(quantity: $quantity, chapterId: $chapterId, topicId: $topicId, classId: $classId)';
+}

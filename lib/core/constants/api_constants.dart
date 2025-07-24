@@ -9,4 +9,7 @@ class ApiConstants {
   static String get processImageEndpoint => '$baseUrl/Questions/process-image';
   static String get generateExamPrompt =>
       '$baseUrl/ExamSets/generate-exam-from-prompt';
+  static String get generateExamFromDropdown =>
+      '$baseUrl/ExamSets/generate-exam-from-dropdown';
+  static String get getTopics => '$baseUrl/Topics?pageNumber=1&pageSize=15';
 }

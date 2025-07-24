@@ -16,6 +16,7 @@ class ExamGenerationBloc extends Bloc<ExamGenerationEvent, ExamGenerationState> 
     on<GenerateExamEvent>(_onGenerateExamFromPrompt);
     on<ClearExamEvent>(_onClearExam);
     on<RetryGenerateExamEvent>(_onRetryGenerateExam);
+    on<GenerateExamFromDropdownEvent>(_onGenerateExamFromDropdown); 
   }
 
   Future<void> _onGenerateExamFromPrompt(
@@ -96,6 +97,107 @@ class ExamGenerationBloc extends Bloc<ExamGenerationEvent, ExamGenerationState> 
         errorCode: 'UNEXPECTED_ERROR',
       ));
     }
+  }
+
+
+  Future<void> _onGenerateExamFromDropdown(
+    GenerateExamFromDropdownEvent event,
+    Emitter<ExamGenerationState> emit,
+  ) async {
+    emit(ExamGenerationLoadingState(
+      loadingMessage: 'Đang tạo đề thi từ dữ liệu đã chọn (${event.quantity} câu)...',
+    ));
+
+    try {
+      print('🔄 [ExamGenerationBloc] Generating exam from dropdown: quantity=${event.quantity}, chapterId=${event.chapterId}, topicId=${event.topicId}, classId=${event.classId}');
+
+      // ✅ Call the dropdown API directly
+      final response = await _callDropdownAPI(event);
+
+      print('📡 [ExamGenerationBloc] Dropdown API Response status: ${response?.statusCode}');
+
+      if (response?.statusCode == 200) {
+        final responseData = jsonDecode(response!.body);
+        print('✅ [ExamGenerationBloc] Dropdown API Response data: $responseData');
+
+        // ✅ Parse response to ExamQuestionModel list
+        final examResponse = ExamGenerationResponseModel.fromJson(responseData);
+
+         if (examResponse.isSuccess && examResponse.data.isNotEmpty) {
+          print('✅ [ExamGenerationBloc] Successfully generated ${examResponse.data.length} questions');
+          
+          emit(ExamGenerationSuccessState(
+            questions: examResponse.data,
+            message: examResponse.message,
+            prompt: 'Dropdown selection',
+          ));
+        } else {
+          print('❌ [ExamGenerationBloc] No questions returned from dropdown API');
+          
+          emit(ExamGenerationErrorState(
+            message: 'Không có câu hỏi nào được tạo từ dữ liệu đã chọn',
+            prompt: 'Dropdown selection',
+            errorCode: 'NO_QUESTIONS_GENERATED',
+          ));
+        }
+      } else if (response?.statusCode == 401) {
+        print('❌ [ExamGenerationBloc] Unauthorized: Token expired or invalid');
+        
+        emit(ExamGenerationErrorState(
+          message: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+          prompt: 'Dropdown selection',
+          errorCode: 'UNAUTHORIZED',
+        ));
+      } else {
+        final errorMessage = 'Failed to generate exam: Server responded with ${response?.statusCode}';
+        print('❌ [ExamGenerationBloc] HTTP Error: $errorMessage');
+        
+        if (response?.body != null) {
+          print('❌ [ExamGenerationBloc] Response body: ${response!.body}');
+        }
+        
+        emit(ExamGenerationErrorState(
+          message: errorMessage,
+          prompt: 'Dropdown selection',
+          errorCode: 'HTTP_ERROR_${response?.statusCode}',
+        ));
+      }
+    } on TimeoutException catch (e) {
+      print('❌ [ExamGenerationBloc] Timeout error: $e');
+      emit(ExamGenerationErrorState(
+        message: 'Request timeout: Server is taking too long to respond. Please try again.',
+        prompt: 'Dropdown selection',
+        errorCode: 'TIMEOUT',
+      ));
+    } catch (e, stackTrace) {
+      print('❌ [ExamGenerationBloc] Unexpected error: $e');
+      print('📍 [ExamGenerationBloc] Stack trace: $stackTrace');
+      
+      emit(ExamGenerationErrorState(
+        message: 'Error generating exam from dropdown: ${e.toString()}',
+        prompt: 'Dropdown selection',
+        errorCode: 'UNEXPECTED_ERROR',
+      ));
+    }
+  }
+
+  // ✅ Helper method to call dropdown API
+  Future<dynamic> _callDropdownAPI(GenerateExamFromDropdownEvent event) async {
+    // Use your existing apiClient to make the call
+    return await apiClient.post(
+       ApiConstants.generateExamFromDropdown,
+      body: {
+        'quantity': event.quantity,
+        'chapterId': event.chapterId,
+        'topicId': event.topicId,
+        'classId': event.classId,
+      },
+      headers: {
+        'accept': '*/*',
+        'Content-Type': 'application/json',
+        // Authorization header should be handled by your ApiClient
+      },
+    );
   }
 
 

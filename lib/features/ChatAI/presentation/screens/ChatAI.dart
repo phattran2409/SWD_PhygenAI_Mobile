@@ -129,32 +129,11 @@ class _ChatAIState extends State<ChatAI> {
         ),
       );
     });
-    // Test Data
-    Future.delayed(const Duration(seconds: 2), () {
-      final testQuestions = _generateTestQuestions(prompt);
-
-      setState(() {
-        _messages.removeWhere((msg) => msg.isLoading);
-        _messages.add(
-          _ChatMessage(
-            text:
-                '✅ Đề thi đã được tạo thành công!\n\n'
-                '📊 Tổng số câu hỏi: ${testQuestions.length}\n'
-                '📚 Prompt: "$prompt"\n\n'
-                '👆 Nhấn vào đây để xem đề thi chi tiết.',
-            isUser: false,
-            isExam: true,
-            examQuestions: testQuestions,
-          ),
-        );
-        _isPrompting = false;
-      });
-    });
 
     // ✅ Gọi BLoC để generate exam
-    // context.read<ExamGenerationBloc>().add(
-    //   GenerateExamEvent(prompt: prompt),
-    // );
+    context.read<ExamGenerationBloc>().add(
+      GenerateExamEvent(prompt: prompt),
+    );
   }
 
   List<ExamQuestionModel> _generateTestQuestions(String prompt) {
