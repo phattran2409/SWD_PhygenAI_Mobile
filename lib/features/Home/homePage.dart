@@ -186,7 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     icon: Icons.phone_android,
                     iconColor: Colors.indigo,
                     backgroundColor: const Color(0xFFE8EAF6),
-                    title: 'Demo Screens',
+                    title: 'Exam Screens',
                     subtitle: 'View All Exam Screens',
                     onTap: () => Navigator.pushNamed(context, '/demo-screens'),
                   ),

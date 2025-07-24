@@ -280,11 +280,7 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen> {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(''),
-                            ),
-                          );
+                          Navigator.pushNamed(context, '/generate-exam');
                         },
                         icon: const Icon(Icons.create_new_folder),
                         label: const Text('Create Exam'),

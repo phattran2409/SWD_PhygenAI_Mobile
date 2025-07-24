@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:phygen/features/ChatAI/model/ExamQuestionModel.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:phygen/features/Exam/ExamSaved/bloc/exam_set_detail_bloc.dart';
+import 'package:phygen/features/Exam/ExamSaved/bloc/exam_set_detail_event.dart';
+import 'package:phygen/features/Exam/ExamSaved/bloc/exam_set_detail_state.dart';
+import 'package:phygen/features/Exam/ExamSaved/model/exam_set_detail_model.dart';
 
 class ExamPreviewScreen extends StatefulWidget {
   final List<ExamQuestionModel>? examQuestions;
@@ -12,11 +17,27 @@ class ExamPreviewScreen extends StatefulWidget {
 
 class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
   List<ExamQuestionModel> questions = [];
+  String? examId; // Thêm biến examId
+  bool hasFetchedDetail = false;
 
   @override
   void initState() {
     super.initState();
     _initializeQuestions();
+    // Lấy examId từ arguments nếu có
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is Map && args['examId'] != null) {
+        setState(() {
+          examId = args['examId'].toString();
+        });
+        // Gửi event fetch chi tiết đề thi nếu có examId
+        if (!hasFetchedDetail) {
+          context.read<ExamSetDetailBloc>().add(FetchExamSetDetailEvent(examId!));
+          hasFetchedDetail = true;
+        }
+      }
+    });
   }
 
   void _initializeQuestions() {
@@ -47,29 +68,79 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Nếu có examId thì dùng BlocBuilder để lấy chi tiết đề thi
+    if (examId != null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Preview Exam'),
+          backgroundColor: const Color(0xFF9F5FFF),
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        backgroundColor: const Color(0xFFF3E8FF),
+        body: BlocBuilder<ExamSetDetailBloc, ExamSetDetailState>(
+          builder: (context, state) {
+            if (state is ExamSetDetailLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is ExamSetDetailError) {
+              return Center(child: Text('Lỗi: ${state.message}'));
+            } else if (state is ExamSetDetailLoaded) {
+              // Map dữ liệu sang ExamQuestionModel để dùng lại UI cũ
+              final detail = state.examSetDetail;
+              final List<ExamQuestionModel> loadedQuestions = detail.examSetQuestions.map((q) {
+                final option = q.question.questionOptionSet;
+                return ExamQuestionModel(
+                  id: q.question.id,
+                  question: q.question.questionContent,
+                  className: 'Class 11',
+                  chapterName: '', // Nếu có chapterName thì map vào
+                  topicName: '', // Nếu có topicName thì map vào
+                  difficulty: q.question.difficulty,
+                  a: option?.a ?? '',
+                  b: option?.b ?? '',
+                  c: option?.c ?? '',
+                  d: option?.d ?? '',
+                  answer: option?.correct,
+                );
+              }).toList();
+              return loadedQuestions.isEmpty
+                  ? const Center(child: Text('Không có câu hỏi nào'))
+                  : Column(
+                      children: [
+                        _buildHeaderWithQuestions(loadedQuestions),
+                        Expanded(child: _buildQuestionsListWithQuestions(loadedQuestions)),
+                        _buildBottomActions(),
+                      ],
+                    );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
+      );
+    }
+    // Nếu không có examId thì dùng logic cũ
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Xem trước đề thi'),
+        title: const Text('Preview Exam'),
         backgroundColor: const Color(0xFF9F5FFF),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
       backgroundColor: const Color(0xFFF3E8FF),
-      body:
-          questions.isEmpty
-              ? const Center(
-                child: Text(
-                  'Không có câu hỏi nào',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
-                ),
-              )
-              : Column(
-                children: [
-                  _buildHeader(),
-                  Expanded(child: _buildQuestionsList()),
-                  _buildBottomActions(),
-                ],
+      body: questions.isEmpty
+          ? const Center(
+              child: Text(
+                'Không có câu hỏi nào',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
+            )
+          : Column(
+              children: [
+                _buildHeader(),
+                Expanded(child: _buildQuestionsList()),
+                _buildBottomActions(),
+              ],
+            ),
     );
   }
 
@@ -91,7 +162,7 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Đề thi ${firstQuestion.className} - ${firstQuestion.chapterName}',
+                    'Exam ${firstQuestion.className} - ${firstQuestion.chapterName}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -107,7 +178,7 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
               children: [
                 _buildChip('📚 ${firstQuestion.className}', Colors.blue),
                 _buildChip('📖 ${firstQuestion.chapterName}', Colors.green),
-                _buildChip('🔢 ${questions.length} câu', Colors.purple),
+                _buildChip('🔢 ${questions.length} questions', Colors.purple),
               ],
             ),
           ],
@@ -217,7 +288,134 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'Chủ đề: ${question.topicName}',
+                    'Topic: ${question.topicName}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: const Color(0xFF9F5FFF),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Thêm các hàm hỗ trợ cho dữ liệu lấy từ API
+  Widget _buildHeaderWithQuestions(List<ExamQuestionModel> questions) {
+    if (questions.isEmpty) return const SizedBox.shrink();
+    final firstQuestion = questions.first;
+    return Card(
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.quiz, color: Color(0xFF9F5FFF)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Exam ${firstQuestion.className}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF9F5FFF),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              children: [
+                _buildChip('📚 ${firstQuestion.className}', Colors.blue),
+                _buildChip('🔢 ${questions.length} questions', Colors.purple),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuestionsListWithQuestions(List<ExamQuestionModel> questions) {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: questions.length,
+      itemBuilder: (context, index) {
+        final question = questions[index];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF9F5FFF),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${index + 1}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            question.className,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            question.question ?? '',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'monospace',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildOption('A', question.a, question.answer == 'A'),
+                _buildOption('B', question.b, question.answer == 'B'),
+                _buildOption('C', question.c, question.answer == 'C'),
+                _buildOption('D', question.d, question.answer == 'D'),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF9F5FFF).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Topic: ${question.topicName}',
                     style: TextStyle(
                       fontSize: 12,
                       color: const Color(0xFF9F5FFF),
@@ -314,7 +512,7 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
             child: OutlinedButton.icon(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back),
-              label: const Text('Quay lại'),
+              label: const Text('Back'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: const Color(0xFF9F5FFF),
                 side: const BorderSide(color: Color(0xFF9F5FFF)),
@@ -328,14 +526,14 @@ class _ExamPreviewScreenState extends State<ExamPreviewScreen> {
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('💾 Đã lưu đề thi!'),
+                    content: Text('💾 Exam saved!'),
                     backgroundColor: Colors.green,
                   ),
                 );
                 Navigator.pop(context);
               },
               icon: const Icon(Icons.save),
-              label: const Text('Lưu đề thi'),
+              label: const Text('Save Exam'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF9F5FFF),
                 foregroundColor: Colors.white,

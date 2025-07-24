@@ -13,9 +13,15 @@ class UploadResponseModel extends UploadResponse {
         );
 
   factory UploadResponseModel.fromJson(Map<String, dynamic> json) {
-    var dataList = json['data'] as List;
-    List<Question> questions = dataList.map((e) => QuestionModel.fromJson(e)).toList();
-
+    List<Question> questions = [];
+    if (json['data'] != null) {
+      if (json['data'] is Map && json['data']['\$values'] != null) {
+        final questionsJson = json['data']['\$values'] as List;
+        questions = questionsJson.map((e) => QuestionModel.fromJson(e)).toList();
+      } else if (json['data'] is List) {
+        questions = (json['data'] as List).map((e) => QuestionModel.fromJson(e)).toList();
+      }
+    }
     return UploadResponseModel(
       isSuccess: json['isSuccess'],
       message: json['message'],

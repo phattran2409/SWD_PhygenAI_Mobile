@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:phygen/features/Exam/ExamSaved/model/exam_set_response_model.dart';
+import 'package:phygen/features/Exam/ExamSaved/bloc/exam_saved_bloc.dart';
+import 'package:phygen/features/Exam/ExamSaved/bloc/exam_saved_event.dart';
+import 'package:phygen/features/Exam/ExamSaved/bloc/exam_saved_state.dart';
+import 'package:phygen/features/Exam/ExamSaved/model/exam_saved_remote_data_source.dart';
+import 'package:phygen/core/services/token_storage_service.dart';
 
 class SavedExamsScreen extends StatefulWidget {
   const SavedExamsScreen({Key? key}) : super(key: key);
@@ -8,79 +15,53 @@ class SavedExamsScreen extends StatefulWidget {
 }
 
 class _SavedExamsScreenState extends State<SavedExamsScreen> {
-  List<Map<String, dynamic>> savedExams = [];
-
   @override
   void initState() {
     super.initState();
-    _loadSavedExams();
-  }
-
-  void _loadSavedExams() {
-    // Mock data - replace with actual data loading
-    savedExams = [
-      {
-        'id': '1',
-        'title': 'Đề thi Toán Lớp 11 - Chương 2',
-        'grade': 'Lớp 11',
-        'chapter': 'Chương 2',
-        'type': 'Trắc nghiệm',
-        'difficulty': 'Trung bình',
-        'questionCount': 20,
-        'createdAt': '2024-01-15',
-        'lastModified': '2024-01-15',
-      },
-      {
-        'id': '2',
-        'title': 'Đề thi Vật lý Lớp 12 - Chương 1',
-        'grade': 'Lớp 12',
-        'chapter': 'Chương 1',
-        'type': 'Kết hợp',
-        'difficulty': 'Khó',
-        'questionCount': 25,
-        'createdAt': '2024-01-14',
-        'lastModified': '2024-01-14',
-      },
-      {
-        'id': '3',
-        'title': 'Đề thi Hóa học Lớp 10 - Chương 3',
-        'grade': 'Lớp 10',
-        'chapter': 'Chương 3',
-        'type': 'Tự luận',
-        'difficulty': 'Dễ',
-        'questionCount': 15,
-        'createdAt': '2024-01-13',
-        'lastModified': '2024-01-13',
-      },
-    ];
+    // Gửi event fetch dữ liệu khi vào màn hình
+    Future.microtask(() => context.read<ExamSavedBloc>().add(FetchExamSavedEvent()));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Đề thi đã lưu'),
+        title: const Text('Your Saved Exams'),
         backgroundColor: Colors.purple[600],
         foregroundColor: Colors.white,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              _showSearchDialog();
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              _showFilterDialog();
-            },
-          ),
-        ],
       ),
-      body: savedExams.isEmpty
-          ? _buildEmptyState()
-          : _buildExamsList(),
+      body: BlocBuilder<ExamSavedBloc, ExamSavedState>(
+        builder: (context, state) {
+          if (state is ExamSavedLoadingState) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is ExamSavedErrorState) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, color: Colors.red, size: 48),
+                  const SizedBox(height: 16),
+                  Text(state.message, style: const TextStyle(fontSize: 16)),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => context.read<ExamSavedBloc>().add(RetryFetchExamSavedEvent()),
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Thử lại'),
+                  ),
+                ],
+              ),
+            );
+          } else if (state is ExamSavedSuccessState) {
+            if (state.examSets.isEmpty) {
+              return _buildEmptyState();
+            }
+            return _buildExamsList(state.examSets);
+          }
+          // State mặc định
+          return const SizedBox.shrink();
+        },
+      ),
     );
   }
 
@@ -129,7 +110,7 @@ class _SavedExamsScreenState extends State<SavedExamsScreen> {
     );
   }
 
-  Widget _buildExamsList() {
+  Widget _buildExamsList(List<ExamSetModel> savedExams) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: savedExams.length,
@@ -151,7 +132,7 @@ class _SavedExamsScreenState extends State<SavedExamsScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          exam['title'],
+                          exam.title,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -167,17 +148,7 @@ class _SavedExamsScreenState extends State<SavedExamsScreen> {
                               children: [
                                 Icon(Icons.visibility, size: 20),
                                 SizedBox(width: 8),
-                                Text('Xem'),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuItem(
-                            value: 'edit',
-                            child: Row(
-                              children: [
-                                Icon(Icons.edit, size: 20),
-                                SizedBox(width: 8),
-                                Text('Chỉnh sửa'),
+                                Text('View'),
                               ],
                             ),
                           ),
@@ -185,19 +156,9 @@ class _SavedExamsScreenState extends State<SavedExamsScreen> {
                             value: 'export',
                             child: Row(
                               children: [
-                                Icon(Icons.picture_as_pdf, size: 20),
+                                Icon(Icons.file_present, size: 20),
                                 SizedBox(width: 8),
-                                Text('Xuất PDF'),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuItem(
-                            value: 'share',
-                            child: Row(
-                              children: [
-                                Icon(Icons.share, size: 20),
-                                SizedBox(width: 8),
-                                Text('Chia sẻ'),
+                                Text('Export to Word'),
                               ],
                             ),
                           ),
@@ -207,7 +168,7 @@ class _SavedExamsScreenState extends State<SavedExamsScreen> {
                               children: [
                                 Icon(Icons.delete, size: 20, color: Colors.red),
                                 SizedBox(width: 8),
-                                Text('Xóa', style: TextStyle(color: Colors.red)),
+                                Text('Delete', style: TextStyle(color: Colors.red)),
                               ],
                             ),
                           ),
@@ -215,39 +176,35 @@ class _SavedExamsScreenState extends State<SavedExamsScreen> {
                       ),
                     ],
                   ),
+                  if (exam.description.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      exam.description,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 12),
-                  
                   // Exam info chips
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _buildInfoChip('Lớp', exam['grade'], Colors.blue),
-                      _buildInfoChip('Chương', exam['chapter'], Colors.green),
-                      _buildInfoChip('Dạng', exam['type'], Colors.orange),
-                      _buildInfoChip('Độ khó', exam['difficulty'], _getDifficultyColor(exam['difficulty'])),
-                      _buildInfoChip('${exam['questionCount']} câu', '', Colors.purple),
+                      _buildInfoChip('Class', '11', Colors.blue),
+                      _buildInfoChip('Status', exam.status, Colors.green),
+                      
                     ],
                   ),
                   const SizedBox(height: 12),
-                  
                   // Date info
                   Row(
                     children: [
                       Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
                       const SizedBox(width: 4),
                       Text(
-                        'Tạo: ${exam['createdAt']}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Icon(Icons.update, size: 16, color: Colors.grey[600]),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Cập nhật: ${exam['lastModified']}',
+                        'Tạo: ${_formatDate(exam.createdAt)}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey[600],
@@ -283,52 +240,44 @@ class _SavedExamsScreenState extends State<SavedExamsScreen> {
     );
   }
 
-  Color _getDifficultyColor(String difficulty) {
-    switch (difficulty) {
-      case 'Dễ':
-        return Colors.green;
-      case 'Trung bình':
-        return Colors.orange;
-      case 'Khó':
-        return Colors.red;
-      case 'Rất khó':
-        return Colors.purple;
-      default:
-        return Colors.grey;
-    }
+  String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
-  void _viewExam(Map<String, dynamic> exam) {
+  void _viewExam(ExamSetModel exam) {
     Navigator.pushNamed(
       context,
-      '/exam-preview',
+      '/view-exam',
       arguments: {
-        'examId': exam['id'],
-        'isReadOnly': true,
+        'examId': exam.id,
       },
     );
   }
 
-  void _handleMenuAction(String action, Map<String, dynamic> exam) {
+  void _exportToWord(ExamSetModel exam) async {
+    try {
+      final token = await TokenStorageService().getToken();
+      await ExamSavedRemoteDataSource().downloadExamWordFile(
+        examSetId: exam.id,
+        token: token ?? '',
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Saved ${exam.title} to Downloads Successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error downloading file: $e')),
+      );
+    }
+  }
+
+  void _handleMenuAction(String action, ExamSetModel exam) {
     switch (action) {
       case 'view':
         _viewExam(exam);
         break;
-      case 'edit':
-        Navigator.pushNamed(
-          context,
-          '/exam-preview',
-          arguments: {
-            'examId': exam['id'],
-            'isReadOnly': false,
-          },
-        );
-        break;
       case 'export':
-        _exportToPDF(exam);
-        break;
-      case 'share':
-        _shareExam(exam);
+        _exportToWord(exam);
         break;
       case 'delete':
         _deleteExam(exam);
@@ -336,163 +285,24 @@ class _SavedExamsScreenState extends State<SavedExamsScreen> {
     }
   }
 
-  void _exportToPDF(Map<String, dynamic> exam) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Đang xuất PDF cho ${exam['title']}...'),
-        action: SnackBarAction(
-          label: 'Hủy',
-          onPressed: () {
-            // Cancel export
-          },
-        ),
-      ),
-    );
-  }
-
-  void _shareExam(Map<String, dynamic> exam) {
+  void _deleteExam(ExamSetModel exam) async {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Chia sẻ đề thi'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.copy),
-              title: const Text('Sao chép liên kết'),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Đã sao chép liên kết')),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.email),
-              title: const Text('Gửi email'),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Mở ứng dụng email')),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.share),
-              title: const Text('Chia sẻ khác'),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Mở menu chia sẻ')),
-                );
-              },
-            ),
-          ],
-        ),
+        title: const Text('Delete Exam'),
+        content: Text('Are you sure you want to delete "${exam.title}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _deleteExam(Map<String, dynamic> exam) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Xóa đề thi'),
-        content: Text('Bạn có chắc chắn muốn xóa "${exam['title']}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
-              setState(() {
-                savedExams.removeWhere((e) => e['id'] == exam['id']);
-              });
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Đã xóa ${exam['title']}'),
-                  action: SnackBarAction(
-                    label: 'Hoàn tác',
-                    onPressed: () {
-                      setState(() {
-                        savedExams.add(exam);
-                      });
-                    },
-                  ),
-                ),
-              );
+              context.read<ExamSavedBloc>().add(DeleteExamSetEvent(exam.id));
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Xóa'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showSearchDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Tìm kiếm đề thi'),
-        content: TextField(
-          decoration: const InputDecoration(
-            hintText: 'Nhập từ khóa tìm kiếm...',
-            prefixIcon: Icon(Icons.search),
-          ),
-          onChanged: (value) {
-            // Implement search logic
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // Implement search
-            },
-            child: const Text('Tìm kiếm'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showFilterDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Lọc đề thi'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Add filter options here
-            const Text('Tính năng lọc sẽ được thêm sau'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // Apply filters
-            },
-            child: const Text('Áp dụng'),
+            child: const Text('Delete'),
           ),
         ],
       ),

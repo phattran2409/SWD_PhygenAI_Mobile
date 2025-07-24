@@ -23,7 +23,7 @@ class DemoScreens extends StatelessWidget {
     }
       return Scaffold(
         appBar: AppBar(
-        title: const Text('Demo - Tất cả các Screen'),
+        title: const Text('All Exam Screens'),
         backgroundColor: Colors.indigo[600],
         foregroundColor: Colors.white,
         elevation: 0,
@@ -37,28 +37,28 @@ class DemoScreens extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Screen List
-            _buildScreenCard(
-              context,
-              'AnalyzeScreen',
-              'Phân tích câu hỏi từ file',
-              Icons.analytics,
-              Colors.blue,
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AnalyzeScreen(
-                    extractedContent: 'Đây là nội dung câu hỏi mẫu được trích xuất từ file. Câu hỏi này thuộc về chương 2 của lớp 11, dạng trắc nghiệm với độ khó trung bình.',
-                  filePath: '/path/to/sample/file.pdf',
-                  key: ValueKey('analyze_demo'),
-                  ),
-                ),
-              ),
-            ),
+            // _buildScreenCard(
+            //   context,
+            //   'AnalyzeScreen',
+            //   'Phân tích câu hỏi từ file',
+            //   Icons.analytics,
+            //   Colors.blue,
+            //   () => Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //       builder: (context) => const AnalyzeScreen(
+            //         extractedContent: 'Đây là nội dung câu hỏi mẫu được trích xuất từ file. Câu hỏi này thuộc về chương 2 của lớp 11, dạng trắc nghiệm với độ khó trung bình.',
+            //       filePath: '/path/to/sample/file.pdf',
+            //       key: ValueKey('analyze_demo'),
+            //       ),
+            //     ),
+            //   ),
+            // ),
 
             _buildScreenCard(
               context,
               'GenerateExamScreen',
-              'Tạo đề thi mới',
+              'Create Exam',
               Icons.auto_awesome,
               Colors.green,
               () => Navigator.push(
@@ -69,24 +69,24 @@ class DemoScreens extends StatelessWidget {
               ),
             ),
 
-            _buildScreenCard(
-              context,
-              'ExamPreviewScreen',
-              'Xem trước đề thi',
-              Icons.preview,
-              Colors.blue,
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ExamPreviewScreen(),
-                ),
-              ),
-            ),
+            // _buildScreenCard(
+            //   context,
+            //   'ExamPreviewScreen',
+            //   'Xem trước đề thi',
+            //   Icons.preview,
+            //   Colors.blue,
+            //   () => Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //       builder: (context) => const ExamPreviewScreen(),
+            //     ),
+            //   ),
+            // ),
 
             _buildScreenCard(
               context,
               'SavedExamsScreen',
-              'Đề thi đã lưu',
+              'View Saved Exams',
               Icons.folder,
               Colors.purple,
               () => Navigator.push(
@@ -97,19 +97,19 @@ class DemoScreens extends StatelessWidget {
               ),
             ),
 
-            _buildScreenCard(
-              context,
-              'HistoryAnalyzedScreen',
-              'Lịch sử phân tích',
-              Icons.history,
-              Colors.orange,
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const HistoryAnalyzedScreen(),
-                ),
-              ),
-            ),
+            // _buildScreenCard(
+            //   context,
+            //   'HistoryAnalyzedScreen',
+            //   'Lịch sử phân tích',
+            //   Icons.history,
+            //   Colors.orange,
+            //   () => Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //       builder: (context) => const HistoryAnalyzedScreen(),
+            //     ),
+            //   ),
+            // ),
 
             const SizedBox(height: 32),
 
